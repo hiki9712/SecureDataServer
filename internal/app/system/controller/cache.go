@@ -32,6 +32,7 @@ func (c *cacheController) Remove(ctx context.Context, req *system.CacheRemoveReq
 	if cacheRedis == commonConsts.CacheModelRedis {
 		cursor := 0
 		cachePrefix := g.Cfg().MustGet(ctx, "system.cache.prefix").String()
+		cachePrefix += commonConsts.CachePrefix
 		for {
 			var v *gvar.Var
 			v, err = g.Redis().Do(ctx, "scan", cursor, "match", cachePrefix+"*", "count", "100")

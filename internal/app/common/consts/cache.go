@@ -8,14 +8,18 @@
 package consts
 
 const (
+	// CachePrefix 应用缓存数据前缀
+	CachePrefix = "APP:"
+
 	CacheModelMem   = "memory"
 	CacheModelRedis = "redis"
+	CacheModelDist  = "dist"
 
 	// CacheSysDict 字典缓存菜单KEY
-	CacheSysDict = "sysDict"
+	CacheSysDict = CachePrefix + "sysDict"
 
 	// CacheSysDictTag 字典缓存标签
-	CacheSysDictTag = "sysDictTag"
+	CacheSysDictTag = CachePrefix + "sysDictTag"
 	// CacheSysConfigTag 系统参数配置
-	CacheSysConfigTag = "sysConfigTag"
+	CacheSysConfigTag = CachePrefix + "sysConfigTag"
 )
