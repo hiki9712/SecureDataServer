@@ -163,6 +163,7 @@ func GetType(p string) (result string, err error) {
 		g.Log().Error(context.TODO(), err)
 		return
 	}
+	defer file.Close()
 	buff := make([]byte, 512)
 
 	_, err = file.Read(buff)
