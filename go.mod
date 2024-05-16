@@ -3,7 +3,7 @@ module github.com/tiger1103/gfast/v3
 go 1.16
 
 require (
-	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef // indirect
+	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef
 	github.com/casbin/casbin/v2 v2.42.0
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.6.2
@@ -20,6 +20,6 @@ require (
 	github.com/tiger1103/gfast-cache v1.0.4
 	github.com/tiger1103/gfast-token v1.0.6
 	go.opentelemetry.io/otel/sdk v1.22.0 // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
