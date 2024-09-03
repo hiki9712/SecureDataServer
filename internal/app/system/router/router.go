@@ -45,7 +45,10 @@ func (router *Router) BindController(ctx context.Context, group *ghttp.RouterGro
 			controller.OperLog,
 			controller.Personal,
 			controller.UserOnline,
-			controller.Cache, // 缓存处理
+			controller.Cache,       // 缓存处理
+			controller.Register,    //注册
+			controller.MockService, //模拟业务管理系统
+			controller.Exchange,    //数据交换
 		)
 		//自动绑定定义的控制器
 		if err := libRouter.RouterAutoBind(ctx, router, group); err != nil {

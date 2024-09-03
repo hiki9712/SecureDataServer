@@ -11,5 +11,5 @@ import (
 )
 
 func main() {
-	cmd.Main.Run(gctx.New())
+	cmd.Main.Run(gctx.New()) //gctx.New()新建一个缓存对象
 }
