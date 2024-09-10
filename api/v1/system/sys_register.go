@@ -6,7 +6,52 @@ import (
 )
 
 type RegisterReq struct {
-	g.Meta          `mime:"application/json" path:"/register" tags:"handle注册" method:"post" summary:"请求注册handleID"`
+	g.Meta          `path:"/handle/register" tags:"handle注册" method:"post" summary:"请求注册handleID"`
+	ServiceName     string               `json:"serviceName"`
+	ServiceID       int64                `json:"serviceID"`
+	HandleName      string               `json:"handleName"`
+	HandleType      string               `json:"handleType"`
+	ProviderID      int64                `json:"providerID"`
+	DatabaseName    string               `json:"databaseName"`
+	KeyValueCount   int                  `json:"keyValueCount"`
+	KeyValueContent []*model.HandleField `json:"keyValueContent"`
+}
+
+type RegisterNegotiationReq struct {
+	g.Meta       `path:"/handle/negotiation" tags:"handle注册" method:"post" summary:"数据协商"`
+	ServiceName  string `json:"serviceName"`
+	ProviderID   int64  `json:"providerID"`
+	DatabaseName string `json:"databaseName"`
+	TableName    string `json:"tableName"`
+}
+
+type RegisterNegotiationRes struct {
+	g.Meta
+	Status    string `json:"status"`
+	Message   string `json:"message"`
+	ServiceID string `json:"serviceID"`
+}
+
+type RegisterNegotiationAgreeReq struct {
+	g.Meta           `path:"/handle/negotiationAgree" tags:"handle注册" method:"post" summary:""`
+	Agree            bool        `json:"agree"`
+	ServiceID        string      `json:"serviceID"`
+	ServiceName      string      `json:"serviceName"`
+	SecureTableField interface{} `json:"secureTableField"`
+}
+
+type ShowHandleInfoReq struct {
+	g.Meta   `path:"/handle/registerShow" tags:"handle注册" method:"post" summary:"查看注册handle"`
+	HandleID int `json:"handleID"`
+}
+
+type ShowHandleInfoRes struct {
+	g.Meta   `mime:"application/json"`
+	HandleID int `json:"handleID"`
+}
+
+type BaseAPIReq struct {
+	g.Meta          `mime:"application/json"`
 	ServiceName     string               `json:"serviceName"`
 	HandleName      string               `json:"handleName"`
 	HandleType      string               `json:"handleType"`
@@ -14,32 +59,6 @@ type RegisterReq struct {
 	DatabaseName    string               `json:"databaseName"`
 	KeyValueCount   int                  `json:"keyValueCount"`
 	KeyValueContent []*model.HandleField `json:"keyValueContent"`
-}
-
-type BaseAPIReq struct {
-	g.Meta                `mime:"application/json"`
-	Type                  string               `json:"type"`
-	FieldNum              int                  `json:"fieldNum"`
-	AtomicHandleNum       int                  `json:"atomicHandleNum"`
-	HandleID              int64                `json:"handleID"`
-	AtomicHandleContent   []*model.HandleField `json:"atomicHandleContent"`
-	CombinedHandleContent []AtomRegisterReq    `json:"combinedHandleContent"`
-}
-
-type AtomRegisterReq struct {
-	g.Meta              `path:"/register" tags:"注册" method:"post" summary:"handle注册"`
-	HandleName          string               `json:"handleName"`
-	Type                string               `json:"type"`
-	FieldNum            int                  `json:"fieldNum"`
-	AtomicHandleContent []*model.HandleField `json:"atomicHandleContent"`
-}
-
-type CombinedRegisterReq struct {
-	g.Meta        `mime:"application/json"`
-	HandleName    string
-	HandleType    string
-	AtomHandleNum int
-	HandleContent []AtomRegisterReq
 }
 
 type RegisterRes struct {

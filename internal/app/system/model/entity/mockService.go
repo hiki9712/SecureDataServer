@@ -23,3 +23,12 @@ type ElectricityInfo struct {
 	NOTE            string `json:"NOTE"`
 	LASTTIME        string `json:"LASTTIME"`
 }
+
+type TaskInfo struct {
+	ServiceID   int64  `json:"service_id"`
+	ServiceName string `json:"service_name"`
+	TaskID      int64  `json:"task_id"`
+	HandleID    int64  `json:"handle_id"`
+	DBName      string `json:"db_name"`
+	TableName   string `json:"table_name"`
+}

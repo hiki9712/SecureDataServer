@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type HandleField struct {
 	KeyValueName      string            `json:"keyValueName"`
 	OriginalTableName string            `json:"originalTableName"`
@@ -22,4 +24,21 @@ type GarbleSaveField struct {
 	FieldName string `json:"fieldName"`
 	StartByte int    `json:"startByte"`
 	CoverByte int    `json:"coverByte"`
+}
+
+type AtomHandleReg struct {
+	HandleID        int64         `json:"handle_id"`
+	HandleName      string        `json:"handle_name"`
+	HandleType      string        `json:"handle_type"`
+	CreateTime      time.Time     `json:"create_time"`
+	ServiceID       int64         `json:"service_id"`
+	ServiceName     string        `json:"service_name"`
+	ProviderID      int64         `json:"provider_id"`
+	KeyValueCount   int           `json:"keyValueCount"`
+	KeyValueContent []interface{} `json:"keyValueContent"`
+	DelFlag         int           `json:"del_flag"`
+	CreateBy        string        `json:"create_by"`
+	UpdateBy        string        `json:"update_by"`
+	UpdateTime      time.Time     `json:"update_time"`
+	Remark          string        `json:"remark"`
 }

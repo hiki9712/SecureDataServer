@@ -27,7 +27,6 @@ func (c *registerController) Register(ctx context.Context, req *system.RegisterR
 	}
 	data, err = service.SysRegister().ResolveReq(ctx, req)
 	g.Log().Info(ctx, "register success", data)
-	return
 	//baseAPIres, err = service.SysRegister().SendToBaseApi(ctx, data)
 	//handle := &system.Handle{
 	//	HandleName: req.HandleName,
@@ -41,10 +40,17 @@ func (c *registerController) Register(ctx context.Context, req *system.RegisterR
 	//	jsonStringCombined, _ := gjson.New(data["combinedHandleContent"]).ToJsonString()
 	//	handle.HandleContent = jsonStringCombined
 	//}
-	//err = service.SysRegister().StoreToDB(ctx, handle)
+	err = service.SysRegister().StoreToDB(ctx, data)
 	//if err != nil {
 	//	res.Status = "fail"
 	//	return
 	//}
-	//return
+	return
+}
+
+func (c *registerController) Negotiation(ctx context.Context, req *system.RegisterNegotiationReq) (res *system.RegisterNegotiationRes, err error) {
+	data, err := service.Negotiation().ResolveReq(ctx, req)
+	g.Log().Info(ctx, "negotiation success", data)
+	res = &system.RegisterNegotiationRes{}
+	return
 }

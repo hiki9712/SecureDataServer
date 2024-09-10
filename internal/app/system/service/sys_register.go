@@ -10,7 +10,7 @@ type (
 	ISysRegister interface {
 		SendToBaseApi(ctx context.Context, data g.Map) (res *system.BaseAPIRes, err error)
 		ResolveReq(ctx context.Context, req *system.RegisterReq) (data g.Map, err error)
-		StoreToDB(ctx context.Context, handle *system.Handle) (err error)
+		StoreToDB(ctx context.Context, data g.Map) (err error)
 	}
 )
 

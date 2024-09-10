@@ -9,7 +9,6 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/tiger1103/gfast/v3/api/v1/system"
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
-	"github.com/tiger1103/gfast/v3/internal/app/system/model/entity"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
 )
 
@@ -17,14 +16,14 @@ func init() {
 	service.RegisterMockService(New())
 }
 
-type sMockService struct {
+type SMockService struct {
 }
 
-func New() *sMockService {
-	return &sMockService{}
+func New() *SMockService {
+	return &SMockService{}
 }
 
-func (s *sMockService) ResolveReq(ctx context.Context, req *system.MockServiceReq) (data g.Map, err error) {
+func (s *SMockService) ResolveReq(ctx context.Context, req *system.MockServiceReq) (data g.Map, err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
 		reqJson, _ := json.Marshal(req)
 		err = json.Unmarshal(reqJson, &data)
@@ -32,12 +31,12 @@ func (s *sMockService) ResolveReq(ctx context.Context, req *system.MockServiceRe
 	return
 }
 
-func (s *sMockService) FetchTable(ctx context.Context, data g.Map) (tableData *model.Table, err error) {
+func (s *SMockService) FetchTable(ctx context.Context, data g.Map) (tableData *model.Table, err error) {
 	var (
 		TaskID int64
 		DB     string
 		Table  string
-		Infos  []*entity.ElectricityInfo
+		//Infos  []*entity.ElectricityInfo
 	)
 	err = g.Try(ctx, func(ctx context.Context) {
 		tableData = &model.Table{}
@@ -45,15 +44,15 @@ func (s *sMockService) FetchTable(ctx context.Context, data g.Map) (tableData *m
 		DB = gconv.String(data["db"])
 		Table = gconv.String(data["table"])
 		fmt.Println(TaskID, DB, Table)
-		err = g.DB(DB).Model(Table).Ctx(ctx).Scan(&Infos)
-		tableData.TableContent = Infos
+		//err = g.DB(DB).Model(Table).Ctx(ctx).Scan(&Infos)
+		//tableData.TableContent = Infos
 		tableData.TableName = Table
 		tableData.TaskID = TaskID
 	})
 	return
 }
 
-func (s *sMockService) SendToKafka(ctx context.Context, tableData *model.Table) (err error) {
+func (s *SMockService) SendToKafka(ctx context.Context, tableData *model.Table) (err error) {
 	//kafka配置
 	kafkaConfig := g.Cfg().MustGet(ctx, "kafka").Map()
 	brokers := kafkaConfig["brokers"].([]interface{})

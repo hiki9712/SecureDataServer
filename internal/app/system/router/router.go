@@ -49,6 +49,8 @@ func (router *Router) BindController(ctx context.Context, group *ghttp.RouterGro
 			controller.Register,    //注册
 			controller.MockService, //模拟业务管理系统
 			controller.Exchange,    //数据交换
+			controller.MockRetry,
+			controller.DesensitizeResult,
 		)
 		//自动绑定定义的控制器
 		if err := libRouter.RouterAutoBind(ctx, router, group); err != nil {

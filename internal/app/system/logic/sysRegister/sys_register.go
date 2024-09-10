@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/tiger1103/gfast/v3/api/v1/system"
+	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
 	"math/rand/v2"
 )
@@ -47,50 +48,69 @@ func (s *sSysRegister) SendToBaseApi(ctx context.Context, data g.Map) (res *syst
 
 func (s *sSysRegister) ResolveReq(ctx context.Context, req *system.RegisterReq) (data g.Map, err error) {
 	var (
-		resData g.Map
-		reqMap  g.Map
+	//resData g.Map
 	)
-	//请求参数初始化，无需处理err
-	resJson, _ := json.Marshal(&system.BaseAPIReq{})
-	_ = json.Unmarshal(resJson, &resData)
+	////底层api请求参数初始化，无需处理err
+	//resJson, _ := json.Marshal(&system.BaseAPIReq{})
+	//_ = json.Unmarshal(resJson, &resData)
 
 	//将req序列化为JSON
 	reqJson, err := json.Marshal(req)
 	if err != nil {
-		return resData, err
+		return
 	}
 
 	//将JSON解析为map[string]interface{}
-	err = json.Unmarshal(reqJson, &reqMap)
+	err = json.Unmarshal(reqJson, &data)
 	if err != nil {
-		return resData, err
+		return
 	}
+	return
 	//fmt.Println(reqMap)
 	//将请求转化为底层api需要的格式,原子句柄和组合句柄处理不同
-	if handleType, ok := reqMap["handleType"].(string); ok {
-		resData["handleType"] = handleType
-		if handleName, ok := reqMap["handleName"].(string); ok {
-			resData["handleName"] = handleName
-		}
-		if databaseName, ok := reqMap["databaseName"].(string); ok {
-			resData["databaseName"] = databaseName
-		}
-		//if handleType == "atomic" {
-		//	resData["fieldNum"] = reqMap["fieldNum"]
-		//	resData["atomicHandleContent"] = reqMap["atomicHandleContent"]
-		//}
-		//if handleType == "combined" {
-		//	resData["atomicHandleNum"] = reqMap["atomicHandleNum"]
-		//	resData["combinedHandleContent"] = reqMap["combinedHandleContent"]
-		//}
-		if keyValueContent, ok := reqMap["keyValueContent"].(string); ok {
-			resData["keyValueContent"] = keyValueContent
-		}
-	}
-	return resData, nil
+	//if handleType, ok := reqMap["handleType"].(string); ok {
+	//	resData["handleType"] = handleType
+	//	if handleName, ok := reqMap["handleName"].(string); ok {
+	//		resData["handleName"] = handleName
+	//	}
+	//	if databaseName, ok := reqMap["databaseName"].(string); ok {
+	//		resData["databaseName"] = databaseName
+	//	}
+	//	//if handleType == "atomic" {
+	//	//	resData["fieldNum"] = reqMap["fieldNum"]
+	//	//	resData["atomicHandleContent"] = reqMap["atomicHandleContent"]
+	//	//}
+	//	//if handleType == "combined" {
+	//	//	resData["atomicHandleNum"] = reqMap["atomicHandleNum"]
+	//	//	resData["combinedHandleContent"] = reqMap["combinedHandleContent"]
+	//	//}
+	//	if keyValueContent, ok := reqMap["keyValueContent"].(string); ok {
+	//		resData["keyValueContent"] = keyValueContent
+	//	}
+	//}
+	//return resData, nil
 }
 
-func (s *sSysRegister) StoreToDB(ctx context.Context, handle *system.Handle) (err error) {
-	_, err = g.Model("handle_register").Data(handle).Insert()
+func (s *sSysRegister) StoreToDB(ctx context.Context, data g.Map) (err error) {
+	HandleNum, err := g.Model("handle_reg").Count()
+	g.Log().Info(ctx, "datakeyvaluecontent:", data["keyValueContent"].([]interface{})[0], HandleNum)
+	for i := 1; i <= int(data["keyValueCount"].(float64)); i++ {
+		insertData := &model.AtomHandleReg{}
+		insertData.HandleID = int64(HandleNum + i)
+		insertData.HandleName = data["handleName"].(string)
+		insertData.HandleType = data["handleType"].(string)
+		insertData.ServiceID = int64(data["serviceID"].(float64))
+		insertData.ServiceName = data["serviceName"].(string)
+		insertData.ProviderID = int64(data["providerID"].(float64))
+		insertData.KeyValueContent = data["keyValueContent"].([]interface{})
+		insertData.DelFlag = 0
+		//insertData.CreateBy TODO
+		//insertData.CreateTime = string(time.Now())
+		//insertData.UpdateBy
+		//insertData.UpdateTime
+		//insertData.Remark
+		_, err = g.Model("handle_reg").Data(insertData).Insert()
+	}
+	//_, err = g.Model("handle_register").Data(handle).Insert()
 	return
 }
