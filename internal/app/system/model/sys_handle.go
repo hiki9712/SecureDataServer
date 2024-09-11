@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 type HandleField struct {
 	KeyValueName      string            `json:"keyValueName"`
@@ -41,4 +43,33 @@ type AtomHandleReg struct {
 	UpdateBy        string        `json:"update_by"`
 	UpdateTime      time.Time     `json:"update_time"`
 	Remark          string        `json:"remark"`
+}
+
+type Negotiation struct {
+	ServiceID        int64     `json:"service_id"`
+	ServiceName      string    `json:"service_name"`
+	ServiceOwnerID   int64     `json:"service_owner_id"`
+	ServiceOwnerName string    `json:"service_owner_name"`
+	ProviderID       int64     `json:"provider_id"`
+	ProviderName     string    `json:"provider_name"`
+	ProviderTable    string    `json:"provider_table"`
+	ProviderDB       string    `json:"provider_db"`
+	SecureTableName  string    `json:"securetable_name"`
+	SecureTableField string    `json:"securetable_field"`
+	Status           string    `json:"status"`
+	Message          string    `json:"message"`
+	DelFlag          int       `json:"del_flag"`
+	CreateBy         string    `json:"create_by"`
+	CreateTime       time.Time `json:"create_time"`
+	UpdateBy         string    `json:"update_by"`
+	UpdateTime       time.Time `json:"update_time"`
+	Remark           string    `json:"remark"`
+}
+
+type NegotiationList struct {
+	ServiceID   int64  `json:"service_id"`
+	ServiceName string `json:"service_name"`
+	TableName   string `json:"table_name"`
+	DBName      string `json:"db_name"`
+	Status      string `json:"status"`
 }

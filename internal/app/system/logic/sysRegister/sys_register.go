@@ -94,23 +94,21 @@ func (s *sSysRegister) ResolveReq(ctx context.Context, req *system.RegisterReq) 
 func (s *sSysRegister) StoreToDB(ctx context.Context, data g.Map) (err error) {
 	HandleNum, err := g.Model("handle_reg").Count()
 	g.Log().Info(ctx, "datakeyvaluecontent:", data["keyValueContent"].([]interface{})[0], HandleNum)
-	for i := 1; i <= int(data["keyValueCount"].(float64)); i++ {
-		insertData := &model.AtomHandleReg{}
-		insertData.HandleID = int64(HandleNum + i)
-		insertData.HandleName = data["handleName"].(string)
-		insertData.HandleType = data["handleType"].(string)
-		insertData.ServiceID = int64(data["serviceID"].(float64))
-		insertData.ServiceName = data["serviceName"].(string)
-		insertData.ProviderID = int64(data["providerID"].(float64))
-		insertData.KeyValueContent = data["keyValueContent"].([]interface{})
-		insertData.DelFlag = 0
-		//insertData.CreateBy TODO
-		//insertData.CreateTime = string(time.Now())
-		//insertData.UpdateBy
-		//insertData.UpdateTime
-		//insertData.Remark
-		_, err = g.Model("handle_reg").Data(insertData).Insert()
-	}
+	insertData := &model.AtomHandleReg{}
+	insertData.HandleID = int64(HandleNum + 1)
+	insertData.HandleName = data["handleName"].(string)
+	insertData.HandleType = data["handleType"].(string)
+	insertData.ServiceID = int64(data["serviceID"].(float64))
+	insertData.ServiceName = data["serviceName"].(string)
+	insertData.ProviderID = int64(data["providerID"].(float64))
+	insertData.KeyValueContent = data["keyValueContent"].([]interface{})
+	insertData.DelFlag = 0
+	//insertData.CreateBy TODO
+	//insertData.CreateTime = string(time.Now())
+	//insertData.UpdateBy
+	//insertData.UpdateTime
+	//insertData.Remark
+	_, err = g.Model("handle_reg").Data(insertData).Insert()
 	//_, err = g.Model("handle_register").Data(handle).Insert()
 	return
 }

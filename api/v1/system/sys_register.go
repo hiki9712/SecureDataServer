@@ -18,26 +18,62 @@ type RegisterReq struct {
 }
 
 type RegisterNegotiationReq struct {
-	g.Meta       `path:"/handle/negotiation" tags:"handle注册" method:"post" summary:"数据协商"`
-	ServiceName  string `json:"serviceName"`
-	ProviderID   int64  `json:"providerID"`
-	DatabaseName string `json:"databaseName"`
-	TableName    string `json:"tableName"`
+	g.Meta         `path:"/handle/negotiation" tags:"handle注册" method:"post" summary:"数据协商"`
+	ServiceName    string `json:"serviceName"`
+	ProviderID     int64  `json:"providerID"`
+	ServiceOwnerID int64  `json:"serviceOwnerID"`
+	DatabaseName   string `json:"databaseName"`
+	TableName      string `json:"tableName"`
 }
 
 type RegisterNegotiationRes struct {
 	g.Meta
 	Status    string `json:"status"`
 	Message   string `json:"message"`
-	ServiceID string `json:"serviceID"`
+	ServiceID int64  `json:"serviceID"`
 }
 
 type RegisterNegotiationAgreeReq struct {
-	g.Meta           `path:"/handle/negotiationAgree" tags:"handle注册" method:"post" summary:""`
+	g.Meta           `path:"/handle/negotiationAgree" tags:"handle注册" method:"post" summary:"数据提供方审核"`
 	Agree            bool        `json:"agree"`
-	ServiceID        string      `json:"serviceID"`
+	ServiceID        int64       `json:"serviceID"`
 	ServiceName      string      `json:"serviceName"`
+	SecureTableName  string      `json:"secureTableName"`
 	SecureTableField interface{} `json:"secureTableField"`
+	Message          string      `json:"message"`
+}
+
+type RegisterNegotiationAgreeRes struct {
+	g.Meta
+	Status    string `json:"status"`
+	Message   string `json:"message"`
+	ServiceID int64  `json:"serviceID"`
+}
+
+type NegotiationNotifyReq struct {
+	g.Meta    `path:"/handle/notify" tags:"handle注册" method:"post" summary:"建表通知"`
+	ServiceID int64 `json:"serviceID"`
+}
+
+type NegotiationNotifyRes struct {
+	g.Meta
+	ServiceID int64  `json:"serviceID"`
+	Status    string `json:"status"`
+	Message   string `json:"message"`
+}
+
+type NegotiationListReq struct {
+	g.Meta     `path:"/handle/negotiationList" tags:"handle注册" method:"post" summary:"查看协商"`
+	UserType   string `json:"user_type"`
+	ProviderID int64  `json:"provider_id"`
+	OwnerID    int64  `json:"owner_id"`
+}
+
+type NegotiationListRes struct {
+	g.Meta
+	Status  string                  `json:"status"`
+	Message string                  `json:"message"`
+	Data    []model.NegotiationList `json:"data"`
 }
 
 type ShowHandleInfoReq struct {

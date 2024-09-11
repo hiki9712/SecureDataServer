@@ -49,8 +49,69 @@ func (c *registerController) Register(ctx context.Context, req *system.RegisterR
 }
 
 func (c *registerController) Negotiation(ctx context.Context, req *system.RegisterNegotiationReq) (res *system.RegisterNegotiationRes, err error) {
+	res = &system.RegisterNegotiationRes{
+		Status:  "fail",
+		Message: "",
+	}
 	data, err := service.Negotiation().ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
 	g.Log().Info(ctx, "negotiation success", data)
-	res = &system.RegisterNegotiationRes{}
+	serviceID, err := service.Negotiation().SendNegotiationRequest(ctx, data)
+	if err != nil {
+		return
+	}
+	res.Status = "success"
+	res.ServiceID = serviceID
+	return
+}
+
+func (c *registerController) NegotiationAgree(ctx context.Context, req *system.RegisterNegotiationAgreeReq) (res *system.RegisterNegotiationAgreeRes, err error) {
+	res = &system.RegisterNegotiationAgreeRes{
+		Status:  "fail",
+		Message: "",
+	}
+	data, err := service.Negotiation().ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
+	g.Log().Info(ctx, "negotiation agree success", data)
+	err = service.Negotiation().SendNegotiationAgreeRequest(ctx, data)
+	if err != nil {
+		return
+	}
+	res.Status = "success"
+	return
+}
+
+func (c *registerController) NegotiationList(ctx context.Context, req *system.NegotiationListReq) (res *system.NegotiationListRes, err error) {
+	data, err := service.Negotiation().ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
+	dataList, err := service.Negotiation().ListNegotiation(ctx, data)
+	res = &system.NegotiationListRes{
+		Status:  "success",
+		Message: "",
+		Data:    dataList,
+	}
+	return
+}
+
+func (c *registerController) Notify(ctx context.Context, req *system.NegotiationNotifyReq) (res *system.NegotiationNotifyRes, err error) {
+	res = &system.NegotiationNotifyRes{
+		Status:  "fail",
+		Message: "",
+	}
+	data, err := service.Negotiation().ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
+	err = service.Negotiation().BuildMySQLDB(ctx, data)
+	if err != nil {
+		return
+	}
+	res.Status = "success"
 	return
 }
