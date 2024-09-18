@@ -51,6 +51,7 @@ func (router *Router) BindController(ctx context.Context, group *ghttp.RouterGro
 			controller.Exchange,    //数据交换
 			controller.MockRetry,
 			controller.DesensitizeResult,
+			controller.Compute, //计算
 		)
 		//自动绑定定义的控制器
 		if err := libRouter.RouterAutoBind(ctx, router, group); err != nil {

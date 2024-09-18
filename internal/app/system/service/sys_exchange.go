@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 )
 
 type (
@@ -11,8 +11,8 @@ type (
 		ResolveReq(ctx context.Context, req interface{}) (data g.Map, err error)
 		StoreExchangeTaskToDB(ctx context.Context, data g.Map) (message string, err error)
 		SendExchangeReqToKafka(ctx context.Context, data g.Map) error
-		FetchTable(ctx context.Context, data g.Map) (tableData *model.Table, err error)
-		SendToMasking(ctx context.Context, tableData *model.Table) error
+		FetchTable(ctx context.Context, data g.Map) (tableData gdb.Result, handleID int64, err error)
+		SendToMasking(ctx context.Context, data g.Map, tableData gdb.Result) error
 	}
 )
 

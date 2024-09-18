@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/bwmarrin/snowflake"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
+	"strings"
 )
 
 func init() {
@@ -62,6 +65,7 @@ func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (m
 		insertData.ProviderID = negotiationDetail.ProviderID
 		insertData.DBName = negotiationDetail.ProviderDB
 		insertData.TableName = negotiationDetail.ProviderTable
+		insertData.SecureTableName = negotiationDetail.SecureTableName
 		//TODO insertData.HandleID = negotiationDetail.HandleID
 		_, err = g.Model("task").Data(insertData).Insert()
 	})
@@ -72,13 +76,12 @@ func (s *sSysExchange) SendExchangeReqToKafka(ctx context.Context, data g.Map) (
 	return
 }
 
-func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData *model.Table, err error) {
+func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData gdb.Result, handleID int64, err error) {
 	var (
 		taskID     int64
 		providerID int64
 		taskData   model.TaskData
 	)
-	tableData = &model.Table{}
 	taskID = int64(data["taskID"].(float64))
 	providerID = int64(data["providerID"].(float64))
 	err = g.Model("task").Where("task_id = ?", taskID).Scan(&taskData)
@@ -87,11 +90,33 @@ func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData *m
 		err = errors.New("provider not correct")
 		return
 	}
-	result, err := g.DB(taskData.DBName).Model(taskData.TableName).Ctx(ctx).All()
-	g.Log().Info(ctx, "infos:", result)
+	handleID = taskData.HandleID
+	tableData, err = g.DB(taskData.DBName).Model(taskData.TableName).Ctx(ctx).All()
+	g.Log().Info(ctx, "infos:", tableData)
 	return
 }
 
-func (s *sSysExchange) SendToMasking(ctx context.Context, tableData *model.Table) (err error) {
+func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map, tableData gdb.Result) (err error) {
+	var reqData model.ProvideRawDataReq
+	reqData.TaskID = int64(data["taskID"].(float64))
+	reqData.HandleID = data["handleID"].(int64)
+	var tableDetail model.TaskTableDetail
+	for _, v := range tableData {
+		g.Log().Info(ctx, "tableData:", v)
+		tableDetail.TableData = append(tableDetail.TableData, strings.Trim(gconv.String(v), "{}"))
+	}
+	tableDetail.SecureTableName = "test"
+	reqData.Data = append(reqData.Data, tableDetail)
+	g.Log().Info(ctx, "reqData:", reqData)
+	client := g.Client()
+	baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
+	response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/data/provideRawData", data)
+	if resErr != nil {
+		err = resErr
+	}
+	defer response.Close()
+	responseString := response.ReadAllString()
+	g.Log().Info(ctx, "response:", responseString)
+	//TODO task表状态升级为running
 	return
 }
