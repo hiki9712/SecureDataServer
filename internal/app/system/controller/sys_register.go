@@ -94,7 +94,7 @@ func (c *registerController) NegotiationList(ctx context.Context, req *system.Ne
 	res = &system.NegotiationListRes{
 		Status:  "success",
 		Message: "",
-		Data:    dataList,
+		Items:   dataList,
 	}
 	return
 }

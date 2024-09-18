@@ -3,14 +3,16 @@ package service
 import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/tiger1103/gfast/v3/api/v1/system"
+	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 )
 
 type (
 	ISysExchange interface {
-		ResolveReq(ctx context.Context, req *system.ExchangeReq) (data g.Map, err error)
-		StoreExchangeTaskToDB(ctx context.Context, data g.Map) error
+		ResolveReq(ctx context.Context, req interface{}) (data g.Map, err error)
+		StoreExchangeTaskToDB(ctx context.Context, data g.Map) (message string, err error)
 		SendExchangeReqToKafka(ctx context.Context, data g.Map) error
+		FetchTable(ctx context.Context, data g.Map) (tableData *model.Table, err error)
+		SendToMasking(ctx context.Context, tableData *model.Table) error
 	}
 )
 

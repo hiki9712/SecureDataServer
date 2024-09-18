@@ -10,4 +10,8 @@ const (
 	NegotiationAgree   = "agree"
 	NegotiationReject  = "reject"
 	NegotiationSuccess = "success"
+	TaskPending        = "pending"
+	TaskRunning        = "running"
+	TaskFailed         = "failed"
+	TaskSuccess        = "success"
 )

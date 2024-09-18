@@ -17,6 +17,9 @@ type RegisterReq struct {
 	KeyValueContent []*model.HandleField `json:"keyValueContent"`
 }
 
+type RegisterListReq struct {
+}
+
 type RegisterNegotiationReq struct {
 	g.Meta         `path:"/handle/negotiation" tags:"handle注册" method:"post" summary:"数据协商"`
 	ServiceName    string `json:"serviceName"`
@@ -73,7 +76,7 @@ type NegotiationListRes struct {
 	g.Meta
 	Status  string                  `json:"status"`
 	Message string                  `json:"message"`
-	Data    []model.NegotiationList `json:"data"`
+	Items   []model.NegotiationList `json:"items"`
 }
 
 type ShowHandleInfoReq struct {

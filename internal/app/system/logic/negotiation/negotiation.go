@@ -77,6 +77,7 @@ func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.M
 }
 
 func (s *sNegotiation) ListNegotiation(ctx context.Context, data g.Map) (negotiationDataList []model.NegotiationList, err error) {
+	g.Log().Info(ctx, "listData:", data)
 	if data["user_type"].(string) == "provider" {
 		providerData, _ := g.Model("negotiation").Fields("status,service_id,service_name,provider_db,provider_table").Where("provider_id = ?", int64(data["provider_id"].(float64))).All()
 		g.Log().Info(ctx, "providerData:", providerData)
@@ -138,5 +139,10 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
 	sql += fmt.Sprintf(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;")
 	g.Log().Info(ctx, "sql:", sql)
 	_, err = g.DB().Exec(ctx, sql)
+	if err != nil {
+		g.Model("negotiation").Where("service_id = ?", serviceID).Update("status", consts.NegotiationFail)
+		return
+	}
+	g.Model("negotiation").Where("service_id = ?", serviceID).Update("status", consts.NegotiationSuccess)
 	return
 }

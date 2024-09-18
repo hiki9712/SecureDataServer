@@ -8,6 +8,7 @@ import (
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
 	"math/rand/v2"
+	"time"
 )
 
 func init() {
@@ -101,12 +102,13 @@ func (s *sSysRegister) StoreToDB(ctx context.Context, data g.Map) (err error) {
 	insertData.ServiceID = int64(data["serviceID"].(float64))
 	insertData.ServiceName = data["serviceName"].(string)
 	insertData.ProviderID = int64(data["providerID"].(float64))
+	insertData.KeyValueCount = int(data["keyValueCount"].(float64))
 	insertData.KeyValueContent = data["keyValueContent"].([]interface{})
 	insertData.DelFlag = 0
 	//insertData.CreateBy TODO
-	//insertData.CreateTime = string(time.Now())
+	insertData.CreateTime = time.Now()
 	//insertData.UpdateBy
-	//insertData.UpdateTime
+	insertData.UpdateTime = time.Now()
 	//insertData.Remark
 	_, err = g.Model("handle_reg").Data(insertData).Insert()
 	//_, err = g.Model("handle_register").Data(handle).Insert()
