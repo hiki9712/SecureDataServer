@@ -140,9 +140,9 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
 	g.Log().Info(ctx, "sql:", sql)
 	_, err = g.DB().Exec(ctx, sql)
 	if err != nil {
-		g.Model("negotiation").Where("service_id = ?", serviceID).Update("status", consts.NegotiationFail)
+		g.Model("negotiation").Data("status", consts.NegotiationFail).Where("service_id = ?", serviceID).Update()
 		return
 	}
-	g.Model("negotiation").Where("service_id = ?", serviceID).Update("status", consts.NegotiationSuccess)
+	g.Model("negotiation").Data("status", consts.NegotiationSuccess).Where("service_id = ?", serviceID).Update()
 	return
 }

@@ -1,8 +1,14 @@
 package service
 
+import (
+	"context"
+	"github.com/gogf/gf/v2/frame/g"
+)
+
 type (
 	ICompute interface {
-		//TODO
+		StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAlter g.Map, err error)
+		SendReqByComputeType(ctx context.Context, data g.Map) (res interface{}, err error)
 	}
 )
 

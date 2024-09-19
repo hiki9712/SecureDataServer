@@ -9,7 +9,9 @@ package libUtils
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/bwmarrin/snowflake"
 	"io"
 	"net"
 	"net/http"
@@ -32,6 +34,28 @@ import (
 // EncryptPassword 密码加密
 func EncryptPassword(password, salt string) string {
 	return gmd5.MustEncryptString(gmd5.MustEncryptString(password) + gmd5.MustEncryptString(salt))
+}
+
+// ResolveReq 接口解析为g.Map
+func ResolveReq(ctx context.Context, req interface{}) (data g.Map, err error) {
+	reqJson, err := json.Marshal(req)
+	if err != nil {
+		g.Log().Error(ctx, err)
+		return
+	}
+	err = json.Unmarshal(reqJson, &data)
+	if err != nil {
+		g.Log().Error(ctx, err)
+		return
+	}
+	return
+}
+
+// GenUniqId 生成一个int64类型的id
+func GenUniqId(ctx context.Context) (res int64) {
+	node, _ := snowflake.NewNode(1)
+	res = node.Generate().Int64()
+	return
 }
 
 // GetDomain 获取当前请求接口域名
