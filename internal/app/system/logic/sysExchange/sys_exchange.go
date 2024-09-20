@@ -8,8 +8,10 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/tiger1103/gfast/v3/api/v1/system"
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
+	"strconv"
 	"strings"
 )
 
@@ -45,6 +47,7 @@ func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (m
 			node              *snowflake.Node
 			taskId            int64
 			insertData        model.TaskData
+			postData          system.SendDataReq
 		)
 
 		serviceID := int64(data["serviceID"].(float64))
@@ -68,6 +71,19 @@ func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (m
 		insertData.SecureTableName = negotiationDetail.SecureTableName
 		//TODO insertData.HandleID = negotiationDetail.HandleID
 		_, err = g.Model("task").Data(insertData).Insert()
+		client := g.Client()
+		postData.TaskID = taskId
+		postData.ProviderID = negotiationDetail.ProviderID
+		g.Log().Info(ctx, "postData:", postData)
+		providerCfg := g.Cfg().MustGet(ctx, "providerAddress."+strconv.FormatInt(negotiationDetail.ProviderID, 10)).Map()
+		response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/exchange/sendData", postData)
+		if resErr != nil {
+			err = resErr
+			g.Log().Info(ctx, "resErr:", resErr)
+			return
+		}
+		responseString := response.ReadAllString()
+		g.Log().Info(ctx, "response:", responseString)
 	})
 	return
 }
