@@ -27,12 +27,8 @@ func (c *registerController) Register(ctx context.Context, req *system.RegisterR
 	}
 	data, err = service.SysRegister().ResolveReq(ctx, req)
 	g.Log().Info(ctx, "register success", data)
-	//baseAPIres, err = service.SysRegister().SendToBaseApi(ctx, data)
-	//handle := &system.Handle{
-	//	HandleName: req.HandleName,
-	//	HandleId:   baseAPIres.HandleID,
-	//	HandleType: req.Type,
-	//}
+	baseAPIres, err := service.SysRegister().SendToBaseApi(ctx, data)
+	g.Log().Info(ctx, "register success", baseAPIres)
 	//if req.Type == "atomic" {
 	//	jsonStringAtomic, _ := gjson.New(data["atomicHandleContent"]).ToJsonString()
 	//	handle.HandleContent = jsonStringAtomic

@@ -3,6 +3,7 @@ package sysRegister
 import (
 	"context"
 	"encoding/json"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/tiger1103/gfast/v3/api/v1/system"
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
@@ -27,21 +28,21 @@ func New() *sSysRegister {
 
 func (s *sSysRegister) SendToBaseApi(ctx context.Context, data g.Map) (res *system.BaseAPIRes, err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
-		//client := g.Client()
-		//baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
-		//response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/handle/register", data)
-		//if resErr != nil {
-		//	err = resErr
-		//}
-		//defer response.Close()
-		//responseString := response.ReadAllString()
-		//gjson.New(responseString).Scan(&res)
-
+		client := g.Client()
+		baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
+		response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/handle/register", data)
+		if resErr != nil {
+			err = resErr
+		}
+		defer response.Close()
+		responseString := response.ReadAllString()
+		gjson.New(responseString).Scan(&res)
+		g.Log().Info(ctx, "response:", responseString)
 		//mock底层api接口返回
 		res = &system.BaseAPIRes{
 			Status:   "success",
 			HandleID: rand.Int64(),
-			Message:  "hello world",
+			Message:  "",
 		}
 	})
 	return
