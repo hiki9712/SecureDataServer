@@ -5,7 +5,7 @@ import (
 )
 
 type DesensitizeResultReq struct {
-	g.Meta      `mime:"application/json" path:"/desensitizeResult" tags:"脱敏结果接收" method:"post" summary:"脱敏结果接收"`
+	g.Meta      `mime:"application/json" path:"/exchange/desensitizeResult" tags:"数据交换" method:"post" summary:"脱敏结果接收"`
 	TaskID      int64  `json:"taskID"`
 	ProviderNum int64  `json:"providerNum"`
 	Status      string `json:"status"`

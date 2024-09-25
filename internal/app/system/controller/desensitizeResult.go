@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/tiger1103/gfast/v3/api/v1/system"
+	"github.com/tiger1103/gfast/v3/internal/app/system/consts"
+	"time"
 )
 
 var (
@@ -23,8 +25,12 @@ func (c *desensitizeResultController) DesensitizeResult(ctx context.Context, req
 	reqJson, _ := json.Marshal(req)
 	err = json.Unmarshal(reqJson, &data)
 	g.Log().Info(ctx, "data:", data)
-	//TaskID = data["task_id"]
-	//_, err = g.DB("default").Model("task").Ctx(ctx).Data("status", "success").Where("task_id=?", TaskID).Update()
+	TaskID = int64(data["taskID"].(float64))
+	if data["status"].(string) == "success" {
+		_, err = g.Model("task").Ctx(ctx).Data("status", consts.TaskSuccess, "update_time", time.Now()).Where("task_id=?", TaskID).Update()
+	} else {
+		_, err = g.Model("task").Ctx(ctx).Data("status", consts.TaskFailed, "update_time", time.Now()).Where("task_id=?", TaskID).Update()
+	}
 	res = &system.DesensitizeResultRes{
 		Status:  "success",
 		TaskID:  TaskID,

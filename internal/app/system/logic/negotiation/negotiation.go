@@ -10,6 +10,7 @@ import (
 	"github.com/tiger1103/gfast/v3/internal/app/system/consts"
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
+	"github.com/tiger1103/gfast/v3/library/libUtils"
 	"strings"
 	"time"
 )
@@ -60,9 +61,23 @@ func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.M
 	serviceID := int64(data["serviceID"].(float64))
 	Agree := data["agree"].(bool)
 	if Agree {
+		result, _ := g.Model("negotiation").Where("service_id=?", serviceID).Fields("provider_db,provider_table").One()
+		db := result["provider_db"]
+		table := result["provider_table"]
+		g.Log().Info(ctx, "result:", result)
+		rawField, _ := libUtils.GetDBField(ctx, gconv.String(db), gconv.String(table))
+		for _, field := range data["secureTableField"].([]interface{}) {
+			g.Log().Info(ctx, "field:", field)
+			for i, rawRow := range rawField {
+				if rawRow.FieldName == field.(map[string]interface{})["fieldName"] {
+					rawField[i].FieldNameNew = field.(map[string]interface{})["fieldNameNew"].(string)
+					rawField[i].IsSecret = field.(map[string]interface{})["isSecret"].(string)
+				}
+			}
+		}
 		message := g.Map{
 			"status":            consts.NegotiationAgree,
-			"securetable_field": data["secureTableField"].(interface{}),
+			"securetable_field": rawField,
 			"securetable_name":  data["secureTableName"].(string),
 		}
 		_, err = g.Model("negotiation").Data(message).Where("service_id = ?", serviceID).Update()
@@ -113,6 +128,7 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
 	var (
 		secureTableInfo g.Map
 		tableFieldList  []g.Map
+		PrimaryKey      []string
 	)
 	serviceID := int64(data["serviceID"].(float64))
 	secureTableData, err := g.Model("negotiation").Fields("securetable_name,securetable_field").Where("service_id = ?", serviceID).One()
@@ -134,15 +150,20 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
 			sql += fmt.Sprintf("`%s` %s,", tableField["fieldNameNew"], tableField["fieldType"])
 		}
 		//TODO 主键该配哪个
+		if tableField["isKey"].(string) == "PRI" {
+			PrimaryKey = append(PrimaryKey, gconv.String(tableField["fieldName"]))
+		}
 	}
+	g.Log().Info(ctx, "primaryKey:", PrimaryKey)
+	sql += fmt.Sprintf("PRIMARY KEY (`%s`)", strings.Join(PrimaryKey, ","))
 	sql = strings.TrimRight(sql, ",")
 	sql += fmt.Sprintf(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;")
 	g.Log().Info(ctx, "sql:", sql)
 	_, err = g.DB().Exec(ctx, sql)
 	if err != nil {
-		g.Model("negotiation").Data("status", consts.NegotiationFail).Where("service_id = ?", serviceID).Update()
+		g.Model("negotiation").Data("status", consts.NegotiationFail, "update_time", time.Now()).Where("service_id = ?", serviceID).Update()
 		return
 	}
-	g.Model("negotiation").Data("status", consts.NegotiationSuccess).Where("service_id = ?", serviceID).Update()
+	g.Model("negotiation").Data("status", consts.NegotiationSuccess, "update_time", time.Now()).Where("service_id = ?", serviceID).Update()
 	return
 }

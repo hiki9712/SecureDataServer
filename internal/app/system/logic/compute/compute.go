@@ -37,6 +37,7 @@ func (s *sCompute) StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAl
 	insertData.ComputeTaskID = id
 	insertData.ServiceID = serviceID
 	insertData.ComputeType = int(data["computeType"].(float64))
+	g.Log().Info(ctx, "insertData:", insertData)
 	_, err = g.Model("compute_reg").Data(insertData).Insert()
 	return
 }
