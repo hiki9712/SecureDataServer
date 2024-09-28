@@ -1,6 +1,9 @@
 package system
 
-import "github.com/gogf/gf/v2/frame/g"
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"time"
+)
 
 type ComputeSendReq struct {
 	g.Meta `path:"/compute/sendRequest" method:"post" tags:"计算" summary:"发送数据"`
@@ -61,4 +64,27 @@ type ComputeResultRes struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
 	TaskID  int64  `json:"taskID"`
+}
+
+type ComputeTaskListReq struct {
+	g.Meta     `path:"/compute/TaskList" method:"post" tags:"计算" summary:"展示数据"`
+	UserType   string `json:"user_type"`
+	OwnerID    int64  `json:"owner_id"`
+	ProviderID int64  `json:"provider_id"`
+}
+
+type ComputeTaskListRes struct {
+	Status  string        `json:"status"`
+	Message string        `json:"message"`
+	Data    []ComputeTask `json:"data"`
+}
+
+type ComputeTask struct {
+	ComputeTaskID  int64     `json:"computeTaskID"`
+	ComputeType    int       `json:"computeType"`
+	ServiceID      int64     `json:"serviceID"`
+	HandleIDList   string    `json:"HandleIDList"`
+	QueryStartTime time.Time `json:"queryStartTime"`
+	QueryEndTime   time.Time `json:"queryEndTime"`
+	ProviderID     int64     `json:"providerID"`
 }

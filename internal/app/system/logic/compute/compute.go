@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/gclient"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/tiger1103/gfast/v3/api/v1/system"
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
@@ -20,6 +21,18 @@ type sCompute struct {
 
 func New() *sCompute {
 	return &sCompute{}
+}
+
+func (s *sCompute) ListCompute(ctx context.Context, data g.Map) (computeData []system.ComputeTask, err error) {
+	g.Log().Info(ctx, "listData:", data)
+	if data["user_type"].(string) == "owner" {
+		err := g.Model("compute_reg").Where("service_owner_id = ?", int64(data["owner_id"].(float64))).Scan(&computeData)
+		if err != nil {
+			return nil, err
+		}
+		g.Log().Info(ctx, "ownerData:", computeData)
+	}
+	return
 }
 
 func (s *sCompute) StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAlter g.Map, err error) {
@@ -40,6 +53,7 @@ func (s *sCompute) StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAl
 	insertData.ComputeType = int(data["computeType"].(float64))
 	insertData.CreateTime = time.Now()
 	insertData.UpdateTime = time.Now()
+	insertData.HandleList = gconv.String(handleID)
 	g.Log().Info(ctx, "insertData:", insertData)
 	_, err = g.Model("compute_reg").Data(insertData).Insert()
 	return

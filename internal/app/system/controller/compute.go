@@ -16,6 +16,27 @@ type computeController struct {
 	BaseController
 }
 
+func (c *computeController) TaskList(ctx context.Context, req *system.ComputeTaskListReq) (res *system.ComputeTaskListRes, err error) {
+	var (
+		data g.Map
+	)
+	res = &system.ComputeTaskListRes{
+		Status:  "fail",
+		Message: "",
+	}
+	data, err = libUtils.ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
+	dataList, err := service.Compute().ListCompute(ctx, data)
+	if err != nil {
+		return
+	}
+	res.Status = "success"
+	res.Data = dataList
+	return
+}
+
 func (c *computeController) SendRequest(ctx context.Context, req *system.ComputeSendReq) (res *system.ComputeSendRes, err error) {
 	var (
 		data g.Map
