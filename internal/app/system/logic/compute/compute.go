@@ -53,6 +53,8 @@ func (s *sCompute) StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAl
 	insertData.ComputeType = int(data["computeType"].(float64))
 	insertData.CreateTime = time.Now()
 	insertData.UpdateTime = time.Now()
+	insertData.QueryStartTime = time.Now()
+	//insertData.QueryEndTime =
 	insertData.HandleList = gconv.String(handleID)
 	g.Log().Info(ctx, "insertData:", insertData)
 	_, err = g.Model("compute_reg").Data(insertData).Insert()
