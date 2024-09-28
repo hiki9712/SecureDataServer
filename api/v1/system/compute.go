@@ -7,6 +7,7 @@ type ComputeSendReq struct {
 	//TODO 前端请求业务系统进行数据查询
 	ServiceID   int64          `json:"serviceID"`
 	ComputeType int            `json:"computeType"`
+	HandleID    int64          `json:"handleID"`
 	Criteria    CriteriaType   `json:"criteria"`
 	Identifier  IdentifierType `json:"identifier"`
 }
@@ -24,13 +25,17 @@ type ProviderIdentifier struct {
 }
 
 type IdentifierType struct {
-	FieldName  []interface{} `json:"fieldName"`
-	FieldValue []interface{} `json:"fieldValue"`
+	//FieldName  []interface{} `json:"fieldName"`
+	//FieldValue []interface{} `json:"fieldValue"`
+	FieldName  string `json:"fieldName"`
+	FieldValue string `json:"fieldValue"`
 }
 
 type CriteriaType struct {
-	FieldName  []interface{} `json:"fieldName"`
-	FieldValue []interface{} `json:"fieldValue"`
+	//FieldName  []interface{} `json:"fieldName"`
+	//FieldValue []interface{} `json:"fieldValue"`
+	FieldName  string `json:"fieldName"`
+	FieldValue string `json:"fieldValue"`
 }
 
 type ComputeSendRes struct {
