@@ -7,6 +7,7 @@ import (
 type ExchangeReq struct {
 	g.Meta    `mime:"application/json" path:"/exchange/sendExchangeRequest" tags:"数据交换" method:"post" summary:"前端向数据请求方发送数据交换请求"`
 	ServiceID int64 `json:"serviceID"`
+	HandleID  int64 `json:"handleID"`
 }
 
 type ExchangeRes struct {

@@ -12,7 +12,6 @@ import (
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
 	"strconv"
-	"strings"
 )
 
 func init() {
@@ -69,6 +68,7 @@ func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (m
 		insertData.DBName = negotiationDetail.ProviderDB
 		insertData.TableName = negotiationDetail.ProviderTable
 		insertData.SecureTableName = negotiationDetail.SecureTableName
+		insertData.HandleID = int64(data["handleID"].(float64))
 		//TODO insertData.HandleID = negotiationDetail.HandleID
 		_, err = g.Model("task").Data(insertData).Insert()
 		client := g.Client()
@@ -114,19 +114,22 @@ func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData gd
 
 func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map, tableData gdb.Result) (err error) {
 	var reqData model.ProvideRawDataReq
+	g.Log().Info(ctx, "data:", data)
 	reqData.TaskID = int64(data["taskID"].(float64))
 	reqData.HandleID = data["handleID"].(int64)
 	var tableDetail model.TaskTableDetail
 	for _, v := range tableData {
 		g.Log().Info(ctx, "tableData:", v)
-		tableDetail.TableData = append(tableDetail.TableData, strings.Trim(gconv.String(v), "{}"))
+		//tableDetail.TableData = append(tableDetail.TableData, strings.Trim(gconv.String(v), "{}"))
+		tableDetail.TableData = append(tableDetail.TableData, v)
 	}
 	tableDetail.SecureTableName = "test"
 	reqData.Data = append(reqData.Data, tableDetail)
 	g.Log().Info(ctx, "reqData:", reqData)
 	client := g.Client()
 	baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
-	response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/data/provideRawData", data)
+	tmpData := gconv.String(reqData) //信工所要转成字符串才能接收，不然格式不是json，这是为什么
+	response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/data/provideRawData", tmpData)
 	if resErr != nil {
 		err = resErr
 	}

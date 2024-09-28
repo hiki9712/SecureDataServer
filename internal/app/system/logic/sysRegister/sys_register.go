@@ -30,7 +30,16 @@ func (s *sSysRegister) SendToBaseApi(ctx context.Context, data g.Map) (res *syst
 	err = g.Try(ctx, func(ctx context.Context) {
 		client := g.Client()
 		baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
-		response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/handle/register", data)
+		g.Log().Info(ctx, "ip:", "http://"+baseCfg["address"].(string)+"/handle/register")
+		g.Log().Info(ctx, "data:", data)
+		sendData := g.Map{
+			"handleType":      data["handleType"],
+			"keyValueContent": data["keyValueContent"],
+			"keyValueCount":   data["keyValueCount"],
+		}
+		g.Log().Info(ctx, "senddata:", sendData)
+		jsonData, _ := gjson.Encode(sendData)
+		response, resErr := client.Post(ctx, "http://"+baseCfg["address"].(string)+"/handle/register", jsonData, g.Map{"Content-Type": "application/json"})
 		if resErr != nil {
 			err = resErr
 		}

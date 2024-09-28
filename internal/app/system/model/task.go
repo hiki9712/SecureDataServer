@@ -48,6 +48,6 @@ type ProvideRawDataReq struct {
 }
 
 type TaskTableDetail struct {
-	SecureTableName string   `json:"secureTableName"`
-	TableData       []string `json:"tableData"`
+	SecureTableName string        `json:"secureTableName"`
+	TableData       []interface{} `json:"tableData"`
 }
