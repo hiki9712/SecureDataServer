@@ -115,15 +115,14 @@ func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData gd
 func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map, tableData gdb.Result) (err error) {
 	var reqData model.ProvideRawDataReq
 	g.Log().Info(ctx, "data:", data)
-	reqData.TaskID = int64(data["taskID"].(float64))
+	reqData.TaskID = int32(data["taskID"].(float64))
 	reqData.HandleID = data["handleID"].(int64)
 	var tableDetail model.TaskTableDetail
 	for _, v := range tableData {
 		g.Log().Info(ctx, "tableData:", v)
-		//tableDetail.TableData = append(tableDetail.TableData, strings.Trim(gconv.String(v), "{}"))
 		tableDetail.TableData = append(tableDetail.TableData, v)
 	}
-	tableDetail.SecureTableName = "test"
+	tableDetail.SecureTableName = ""
 	reqData.Data = append(reqData.Data, tableDetail)
 	g.Log().Info(ctx, "reqData:", reqData)
 	client := g.Client()
