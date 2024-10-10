@@ -23,15 +23,15 @@ type AssignPowerConsumptionTask struct {
 }
 
 type ProviderIdentifier struct {
-	TaskID     int64          `json:"task_id"`
+	TaskID     int64          `json:"taskID"`
 	Identifier IdentifierType `json:"identifier"`
 }
 
 type IdentifierType struct {
 	//FieldName  []interface{} `json:"fieldName"`
 	//FieldValue []interface{} `json:"fieldValue"`
-	FieldName  string `json:"fieldName"`
-	FieldValue string `json:"fieldValue"`
+	FieldName  string        `json:"fieldName"`
+	FieldValue []interface{} `json:"fieldValue"`
 }
 
 type CriteriaType struct {

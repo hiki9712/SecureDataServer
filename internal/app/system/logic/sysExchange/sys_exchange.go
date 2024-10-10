@@ -119,11 +119,18 @@ func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map, tableData 
 	reqData.HandleID = data["handleID"].(int64)
 	var tableDetail model.TaskTableDetail
 	for _, v := range tableData {
-		g.Log().Info(ctx, "tableData:", v)
 		tableDetail.TableData = append(tableDetail.TableData, v)
 	}
-	tableDetail.SecureTableName = ""
+	tableDetail.SecureTableName = "Provider1_DB1_POB_POINT"
 	reqData.Data = append(reqData.Data, tableDetail)
+	//test
+	var tableDetail2 model.TaskTableDetail
+	tableData, err = g.DB("raw_sg").Model("ZDT_BM_1306").Ctx(ctx).All()
+	for _, v := range tableData {
+		tableDetail2.TableData = append(tableDetail.TableData, v)
+	}
+	tableDetail2.SecureTableName = "Provider1_DB1_ZDT_BM_1306"
+	reqData.Data = append(reqData.Data, tableDetail2)
 	g.Log().Info(ctx, "reqData:", reqData)
 	client := g.Client()
 	baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()

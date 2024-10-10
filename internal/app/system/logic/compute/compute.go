@@ -72,14 +72,15 @@ func (s *sCompute) SendReqByComputeType(ctx context.Context, data g.Map) (res in
 		postData.TaskID = data["id"].(int64)
 		postData.HandleID = data["handle_id"].(int64)
 		postData.ComputeType = int(data["computeType"].(float64))
+		//postData.Criteria.FieldName = "STARTTIME,ENDTIME"
 		postData.Criteria.FieldName = data["criteria"].(map[string]interface{})["fieldName"].(string)
+		//postData.Criteria.FieldValue = "2024-07-01,2024-09-01"
 		postData.Criteria.FieldValue = data["criteria"].(map[string]interface{})["fieldValue"].(string)
-		//postData.Criteria.FieldName = data["criteria"].(map[string]interface{})["fieldName"].([]interface{})
-		//postData.Criteria.FieldValue = data["criteria"].(map[string]interface{})["fieldValue"].([]interface{})
 		g.Log().Info(ctx, "postData", postData)
 		client := g.Client()
 		baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
-		response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/compute/assignPowerConsumptionTask", postData)
+		tempData := gconv.String(postData)
+		response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/compute/assignPowerConsumptionTask", tempData)
 		if resErr != nil {
 			err = resErr
 			return
@@ -87,16 +88,19 @@ func (s *sCompute) SendReqByComputeType(ctx context.Context, data g.Map) (res in
 		responseString := response.ReadAllString()
 		g.Log().Info(ctx, "response:", responseString)
 		identifierData.TaskID = postData.TaskID
+		//identifierData.Identifier.FieldName = "CUSTOMERID"
 		identifierData.Identifier.FieldName = data["identifier"].(map[string]interface{})["fieldName"].(string)
-		identifierData.Identifier.FieldValue = data["identifier"].(map[string]interface{})["fieldValue"].(string)
-		//identifierData.Identifier.FieldName = data["identifier"].(map[string]interface{})["fieldName"].([]interface{})
-		//identifierData.Identifier.FieldValue = data["identifier"].(map[string]interface{})["fieldValue"].([]interface{})
+		//identifierData.Identifier.FieldValue = [][]string{{"17"}}
+		identifierData.Identifier.FieldValue = data["identifier"].(map[string]interface{})["fieldValue"].([]interface{})
 		g.Log().Info(ctx, "identifierData", identifierData)
-		response, resErr = client.Post(ctx, baseCfg["address"].(string)+"/search/provideIdentifier", identifierData)
+		tempData = gconv.String(identifierData)
+		response, resErr = client.Post(ctx, baseCfg["address"].(string)+"/search/provideIdentifier", tempData)
 		if resErr != nil {
 			err = resErr
 			return
 		}
+		responseString = response.ReadAllString()
+		g.Log().Info(ctx, "response:", responseString)
 		defer func(response *gclient.Response) {
 			err := response.Close()
 			if err != nil {
