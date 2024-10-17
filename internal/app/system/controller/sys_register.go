@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/tiger1103/gfast/v3/api/v1/system"
-	_ "github.com/tiger1103/gfast/v3/internal/app/system/logic"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
 )
 
@@ -63,6 +62,26 @@ func (c *registerController) Negotiation(ctx context.Context, req *system.Regist
 	return
 }
 
+func (c *registerController) NegotiationToPro(ctx context.Context, req *system.RegisterNegotiationToProReq) (res *system.RegisterNegotiationRes, err error) {
+	res = &system.RegisterNegotiationRes{
+		Status:  "fail",
+		Message: "",
+	}
+	data, err := service.Negotiation().ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
+	g.Log().Info(ctx, "negotiationToPro success", data)
+	serviceID, err := service.Negotiation().SendNegotiationToProvider(ctx, data)
+	if err != nil {
+		return
+	}
+	res.Status = "success"
+	res.ServiceID = serviceID
+	return
+}
+
+
 func (c *registerController) NegotiationAgree(ctx context.Context, req *system.RegisterNegotiationAgreeReq) (res *system.RegisterNegotiationAgreeRes, err error) {
 	res = &system.RegisterNegotiationAgreeRes{
 		Status:  "fail",
@@ -80,6 +99,25 @@ func (c *registerController) NegotiationAgree(ctx context.Context, req *system.R
 	res.Status = "success"
 	return
 }
+
+func (c *registerController) NegotiationAgreeToReq(ctx context.Context, req *system.RegisterNegotiationAgreeToReqReq) (res *system.RegisterNegotiationAgreeRes, err error) {
+	res = &system.RegisterNegotiationAgreeRes{
+		Status:  "fail",
+		Message: "",
+	}
+	data, err := service.Negotiation().ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
+	g.Log().Info(ctx, "negotiation agree success", data)
+	err = service.Negotiation().SendNegotiationAgreeToRequestor(ctx, data)
+	if err != nil {
+		return
+	}
+	res.Status = "success"
+	return
+}
+
 
 func (c *registerController) NegotiationList(ctx context.Context, req *system.NegotiationListReq) (res *system.NegotiationListRes, err error) {
 	data, err := service.Negotiation().ResolveReq(ctx, req)

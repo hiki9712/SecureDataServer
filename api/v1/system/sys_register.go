@@ -29,6 +29,15 @@ type RegisterNegotiationReq struct {
 	TableName      string `json:"tableName"`
 }
 
+type RegisterNegotiationToProReq struct {
+	g.Meta         `path:"/handle/negotiationToPro" tags:"handle注册" method:"post" summary:"数据协商传给提供方"`
+	ServiceName    string `json:"serviceName"`
+	ProviderID     int64  `json:"providerID"`
+	ServiceOwnerID int64  `json:"serviceOwnerID"`
+	DatabaseName   string `json:"databaseName"`
+	TableName      string `json:"tableName"`
+}
+
 type RegisterNegotiationRes struct {
 	g.Meta
 	Status    string `json:"status"`
@@ -38,6 +47,16 @@ type RegisterNegotiationRes struct {
 
 type RegisterNegotiationAgreeReq struct {
 	g.Meta           `path:"/handle/negotiationAgree" tags:"handle注册" method:"post" summary:"数据提供方审核"`
+	Agree            bool        `json:"agree"`
+	ServiceID        int64       `json:"serviceID"`
+	ServiceName      string      `json:"serviceName"`
+	SecureTableName  string      `json:"secureTableName"`
+	SecureTableField interface{} `json:"secureTableField"`
+	Message          string      `json:"message"`
+}
+
+type RegisterNegotiationAgreeToReqReq struct {
+	g.Meta           `path:"/handle/negotiationAgreeToReq" tags:"handle注册" method:"post" summary:"协商信息发送给需求方"`
 	Agree            bool        `json:"agree"`
 	ServiceID        int64       `json:"serviceID"`
 	ServiceName      string      `json:"serviceName"`

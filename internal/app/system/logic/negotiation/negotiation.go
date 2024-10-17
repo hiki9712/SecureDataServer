@@ -13,6 +13,7 @@ import (
 	"github.com/tiger1103/gfast/v3/library/libUtils"
 	"strings"
 	"time"
+	"strconv"
 )
 
 func init() {
@@ -54,19 +55,116 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 	negotiationData.CreateTime = time.Now()
 	negotiationData.UpdateTime = time.Now()
 	_, err = g.Model("negotiation").Insert(negotiationData)
+
+	// 发送协商信息给服务提供方
+	client := g.Client()
+	postData := data
+	// 获取提供者的配置并发送 POST 请求
+	providerCfg := g.Cfg().MustGet(ctx, "providerAddress."+strconv.FormatInt(negotiationData.ProviderID, 10)).Map()
+	g.Log().Info(ctx, "postData:", postData)
+	response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/handle/negotiationToPro", postData)
+	if resErr != nil {
+    	g.Log().Error(ctx, "发送协商信息失败:", resErr)
+    return 0, resErr // 返回错误
+	}
+	// 在这里可以处理成功的响应，例如解析响应内容
+	g.Log().Info(ctx, "协商信息发送成功，响应:", response)	
 	return negotiationData.ServiceID, err
 }
 
+// 提供方处理接收到的协商
+func (s *sNegotiation) SendNegotiationToProvider(ctx context.Context, data g.Map) (serviceID int64, err error) {  
+	serviceNum, err := g.Model("negotiation_pro").Count()
+	g.Log().Info(ctx, "negotiation_pro:ServiceNum:", serviceNum)
+	negotiationData := &model.Negotiation{}
+	negotiationData.ServiceID = int64(serviceNum + 1)
+	negotiationData.ServiceName = data["serviceName"].(string)
+	negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
+	negotiationData.ProviderID = int64(data["providerID"].(float64))
+	negotiationData.ProviderTable = data["tableName"].(string)
+	negotiationData.ProviderDB = data["databaseName"].(string)
+	negotiationData.SecureTableName = "secure_" + data["tableName"].(string)
+	negotiationData.Status = consts.NegotiationStart
+	negotiationData.DelFlag = 0
+	negotiationData.CreateTime = time.Now()
+	negotiationData.UpdateTime = time.Now()
+	_, err = g.Model("negotiation_pro").Insert(negotiationData)
+	return negotiationData.ServiceID, err
+}
+
+// 建表要求/状态存入提供方数据库
 func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.Map) (err error) {
 	serviceID := int64(data["serviceID"].(float64))
 	Agree := data["agree"].(bool)
+	requestorIDVar, _ := g.Model("negotiation_pro").Where("service_id=?", serviceID).Value("service_owner_id")
+	requestorID := requestorIDVar.Int64()
+	g.Log().Info(ctx, "data:", data)
+
+	if Agree {
+		result, _ := g.Model("negotiation_pro").Where("service_id=?", serviceID).Fields("provider_db,provider_table").One()
+		db := result["provider_db"]
+		table := result["provider_table"]
+		g.Log().Info(ctx, "result:", result)
+		rawField, _ := libUtils.GetDBField(ctx, gconv.String(db), gconv.String(table))
+		for _, field := range data["secureTableField"].([]interface{}) {
+			g.Log().Info(ctx, "field:", field)
+			for i, rawRow := range rawField {
+				if rawRow.FieldName == field.(map[string]interface{})["fieldName"] {
+					rawField[i].FieldNameNew = field.(map[string]interface{})["fieldNameNew"].(string)
+					rawField[i].IsSecret = field.(map[string]interface{})["isSecret"].(string)
+				}
+			}
+		}
+		message := g.Map{
+			"status":            consts.NegotiationAgree,
+			"securetable_field": rawField,
+			"securetable_name":  data["secureTableName"].(string),
+		}
+		_, err = g.Model("negotiation_pro").Data(message).Where("service_id = ?", serviceID).Update()
+	} else {
+		message := g.Map{
+			"status":  consts.NegotiationReject,
+			"message": gconv.String(data["message"].(string)),
+		}
+		_, err = g.Model("negotiation_pro").Data(message).Where("service_id = ?", serviceID).Update()
+	}
+
+	// 发送建表要求给需求方
+	client := g.Client()
+	postData := data
+	// 获取需求方的配置并发送 POST 请求
+	requestorCfg := g.Cfg().MustGet(ctx, "requestorAddress."+strconv.FormatInt(requestorID, 10)).Map()
+	g.Log().Info(ctx, "postData:", postData)
+	response, resErr := client.Post(ctx, requestorCfg["address"].(string)+"/api/v1/system/handle/negotiationAgreeToReq", postData)
+	if resErr != nil {
+    	g.Log().Error(ctx, "发送建表要求失败:", resErr)
+    return resErr // 返回错误
+	}
+	// 在这里可以处理成功的响应，例如解析响应内容
+	g.Log().Info(ctx, "建表要求发送成功，响应:", response)	
+
+	return
+}
+
+// 建表要求存入需求方数据库
+func (s *sNegotiation) SendNegotiationAgreeToRequestor(ctx context.Context, data g.Map) (err error) {
+	serviceID := int64(data["serviceID"].(float64))
+	Agree := data["agree"].(bool)
+	g.Log().Info(ctx, "data:", data)
 	if Agree {
 		result, _ := g.Model("negotiation").Where("service_id=?", serviceID).Fields("provider_db,provider_table").One()
 		db := result["provider_db"]
 		table := result["provider_table"]
 		g.Log().Info(ctx, "result:", result)
 		rawField, _ := libUtils.GetDBField(ctx, gconv.String(db), gconv.String(table))
-		for _, field := range data["secureTableField"].([]interface{}) {
+
+		var fields []interface{}
+		err := json.Unmarshal([]byte(data["secureTableField"].(string)), &fields)
+		if err != nil {
+			// 处理错误
+			fmt.Println("Error parsing JSON:", err)
+		} 
+		for _, field := range fields {
 			g.Log().Info(ctx, "field:", field)
 			for i, rawRow := range rawField {
 				if rawRow.FieldName == field.(map[string]interface{})["fieldName"] {
@@ -94,7 +192,7 @@ func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.M
 func (s *sNegotiation) ListNegotiation(ctx context.Context, data g.Map) (negotiationDataList []model.NegotiationList, err error) {
 	g.Log().Info(ctx, "listData:", data)
 	if data["user_type"].(string) == "provider" {
-		providerData, _ := g.Model("negotiation").Fields("status,service_id,service_name,provider_db,provider_table").Where("provider_id = ?", int64(data["provider_id"].(float64))).All()
+		providerData, _ := g.Model("negotiation_pro").Fields("status,service_id,service_name,provider_db,provider_table").Where("provider_id = ?", int64(data["provider_id"].(float64))).All()
 		g.Log().Info(ctx, "providerData:", providerData)
 		for _, v := range providerData {
 			negotiationData := model.NegotiationList{

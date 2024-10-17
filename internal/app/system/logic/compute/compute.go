@@ -57,7 +57,10 @@ func (s *sCompute) StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAl
 	insertData.ServiceOwnerID = 12
 	insertData.ProviderIDList = "1234"
 	//insertData.QueryEndTime =
+	insertData.ServiceOwnerID = 12
+	insertData.ProviderIDList = "1234"
 	insertData.HandleList = gconv.String(handleID)
+
 	g.Log().Info(ctx, "insertData:", insertData)
 	_, err = g.Model("compute_reg").Data(insertData).Insert()
 	return
