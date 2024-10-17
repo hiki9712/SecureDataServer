@@ -42,7 +42,7 @@ type TaskData struct {
 }
 
 type ProvideRawDataReq struct {
-	TaskID   int64             `json:"taskID"`
+	TaskID   int32             `json:"taskID"`
 	HandleID int64             `json:"handleID"`
 	Data     []TaskTableDetail `json:"data"`
 }
