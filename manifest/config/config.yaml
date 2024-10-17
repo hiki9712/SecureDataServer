@@ -31,7 +31,7 @@ database:
     Path: "resource/log/sql"
 
   default:
-    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/g_fast_demo?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑

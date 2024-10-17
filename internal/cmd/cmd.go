@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+
 	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -10,6 +11,8 @@ import (
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/tiger1103/gfast/v3/internal/consts"
 	"github.com/tiger1103/gfast/v3/internal/router"
+
+	"github.com/tiger1103/gfast/v3/internal/websocket"
 )
 
 var (
@@ -21,6 +24,10 @@ var (
 			g.Log().SetFlags(glog.F_ASYNC | glog.F_TIME_DATE | glog.F_TIME_TIME | glog.F_FILE_LONG)
 			g.Log().Info(ctx, gbase64.MustDecodeString(consts.Logo), "Version:", consts.Version)
 			s := g.Server()
+
+			// 注册 WebSocket 路由
+			s.BindHandler("/ws", websocket.HandleWebSocket)
+
 			s.Group("/", func(group *ghttp.RouterGroup) {
 				router.R.BindController(ctx, group)
 			})

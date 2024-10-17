@@ -1,8 +1,9 @@
 package system
 
 import (
-	"github.com/gogf/gf/v2/frame/g"
 	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 type ComputeSendReq struct {
@@ -68,9 +69,9 @@ type ComputeResultRes struct {
 
 type ComputeTaskListReq struct {
 	g.Meta     `path:"/compute/TaskList" method:"post" tags:"计算" summary:"展示数据"`
-	UserType   string `json:"user_type"`
+	UserType   string `json:"user_type"` //TODO 该字段含义
 	OwnerID    int64  `json:"owner_id"`
-	ProviderID int64  `json:"provider_id"`
+	ProviderID int64  `json:"provider_id"` //TODO 该字段含义
 }
 
 type ComputeTaskListRes struct {
@@ -87,4 +88,13 @@ type ComputeTask struct {
 	QueryStartTime time.Time `json:"queryStartTime"`
 	QueryEndTime   time.Time `json:"queryEndTime"`
 	ProviderID     int64     `json:"providerID"`
+}
+
+type ResultReq struct {
+	g.Meta `path:"/compute/ShowResult" method:"get" tags:"计算" summary:"展示计算结果数据"`
+	TaskID int64 `json:"owner_id"`
+}
+
+type Result struct {
+	Result string `json:"result"`
 }
