@@ -12,9 +12,11 @@ require (
 	github.com/gogf/gf/v2 v2.6.2
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/mssola/user_agent v0.5.3
+	github.com/pkg/sftp v1.13.6
 	github.com/shirou/gopsutil/v3 v3.23.2
 	github.com/tiger1103/gfast-cache v1.0.4
 	github.com/tiger1103/gfast-token v1.0.6
+	golang.org/x/crypto v0.26.0
 )
 
 require (
@@ -55,6 +57,7 @@ require (
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -76,7 +79,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.22.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.22.0 // indirect
 	go.opentelemetry.io/otel/trace v1.22.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/image v0.13.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/sys v0.23.0 // indirect

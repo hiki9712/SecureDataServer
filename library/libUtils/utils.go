@@ -12,6 +12,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bwmarrin/snowflake"
+	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/pkg/sftp"
+	"golang.org/x/crypto/ssh"
 	"io"
 	"net"
 	"net/http"
@@ -34,6 +37,97 @@ import (
 // EncryptPassword 密码加密
 func EncryptPassword(password, salt string) string {
 	return gmd5.MustEncryptString(gmd5.MustEncryptString(password) + gmd5.MustEncryptString(salt))
+}
+
+// Upload 将文件上传到指定服务器
+func Upload(ctx context.Context, params g.Map, jsonFileList []g.Map) (err error) {
+	var (
+		username string
+		password string
+		addr     string
+		path     string
+	)
+	username = params["username"].(string)
+	password = params["password"].(string)
+	addr = params["addr"].(string)
+	path = params["path"].(string)
+	//ssh 连接
+	config := &ssh.ClientConfig{
+		User: username,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(password),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+	client, err := ssh.Dial("tcp", addr, config)
+	if err != nil {
+		g.Log().Error(ctx, "connect ssh error", g.Map{"err": err})
+	}
+	defer func(client *ssh.Client) {
+		err := client.Close()
+		if err != nil {
+			return
+		}
+	}(client)
+	// 创建SFTP客户端
+	sftpClient, err := sftp.NewClient(client)
+	if err != nil {
+		g.Log().Error(ctx, "sftp new client error", g.Map{"err": err})
+		return
+	}
+	defer func(sftpClient *sftp.Client) {
+		err := sftpClient.Close()
+		if err != nil {
+			return
+		}
+	}(sftpClient)
+	for i, jsonFile := range jsonFileList {
+		jsonBytes, _ := json.Marshal(jsonFile)
+		remoteFile, _ := sftpClient.Create(path + gconv.String(i) + ".json")
+		//if err != nil {
+		//	g.Log().Error(ctx, "create json file error", g.Map{"err": err})
+		//	return
+		//}
+		remoteFile.Write(jsonBytes)
+		defer func(remoteFile *sftp.File) {
+			err := remoteFile.Close()
+			if err != nil {
+
+			}
+		}(remoteFile)
+	}
+	return
+}
+
+// JsonFileSplit 将json文件按不同大小的要求切分成小json
+func JsonFileSplit(ctx context.Context, originJson []map[string]interface{}, chunkSize int) (splitJson [][]map[string]interface{}, err error) {
+	var (
+		currentChunk []map[string]interface{}
+		currentSize  int
+	)
+	for _, item := range originJson {
+		jsonData, err := json.Marshal(item)
+		if err != nil {
+			g.Log().Error(ctx, "json marshal failed!: ", err)
+			return nil, err
+		}
+		newSize := currentSize + len(jsonData)
+
+		if newSize >= chunkSize {
+			splitJson = append(splitJson, currentChunk)
+			currentChunk = []map[string]interface{}{item}
+			currentSize = len(jsonData)
+		} else {
+			currentChunk = append(currentChunk, item)
+			currentSize += len(jsonData)
+		}
+	}
+
+	if len(currentChunk) > 0 {
+		splitJson = append(splitJson, currentChunk)
+	}
+
+	return splitJson, nil
 }
 
 // ResolveReq 接口解析为g.Map

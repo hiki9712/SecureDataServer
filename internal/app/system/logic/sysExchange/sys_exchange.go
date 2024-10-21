@@ -2,6 +2,8 @@ package sysExchange
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"github.com/bwmarrin/snowflake"
@@ -11,6 +13,7 @@ import (
 	"github.com/tiger1103/gfast/v3/api/v1/system"
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
+	"github.com/tiger1103/gfast/v3/library/libUtils"
 	"strconv"
 )
 
@@ -69,7 +72,6 @@ func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (m
 		insertData.TableName = negotiationDetail.ProviderTable
 		insertData.SecureTableName = negotiationDetail.SecureTableName
 		insertData.HandleID = int64(data["handleID"].(float64))
-		//TODO insertData.HandleID = negotiationDetail.HandleID
 		_, err = g.Model("task").Data(insertData).Insert()
 		client := g.Client()
 		postData.TaskID = taskId
@@ -108,34 +110,82 @@ func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData gd
 	}
 	handleID = taskData.HandleID
 	tableData, err = g.DB(taskData.DBName).Model(taskData.TableName).Ctx(ctx).All()
-	g.Log().Info(ctx, "infos:", tableData)
 	return
 }
 
 func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map, tableData gdb.Result) (err error) {
 	var reqData model.ProvideRawDataReq
-	g.Log().Info(ctx, "data:", data)
 	reqData.TaskID = int32(data["taskID"].(float64))
 	reqData.HandleID = data["handleID"].(int64)
 	var tableDetail model.TaskTableDetail
-	for _, v := range tableData {
-		tableDetail.TableData = append(tableDetail.TableData, v)
+	var result []map[string]interface{}
+	var resultList [][]map[string]interface{}
+	err = json.Unmarshal([]byte(gconv.String(tableData)), &result)
+	if err != nil {
+		return
+	}
+	resultList, _ = libUtils.JsonFileSplit(ctx, result, 64*1024)
+	var uploadList []g.Map
+	param := g.Map{
+		"username": "root",
+		"password": "Welcome123$%^",
+		"addr":     "123.59.0.99:22333",
+		"path":     "/root/lhy/Provider1_DB1_POB_POINT_",
+	}
+	for i, item := range resultList {
+		upload := g.Map{
+			"tableData": item,
+		}
+		uploadList = append(uploadList, upload)
+		reqData.DataAddress = append(reqData.DataAddress, param["path"].(string)+gconv.String(i)+".json")
+		uploadByte, _ := json.Marshal(upload)
+		h := md5.New()
+		h.Write(uploadByte)
+		reqData.HashCode = append(reqData.HashCode, hex.EncodeToString(h.Sum(nil)))
+	}
+	err = libUtils.Upload(ctx, param, uploadList)
+	if err != nil {
+		return
 	}
 	tableDetail.SecureTableName = "Provider1_DB1_POB_POINT"
-	reqData.Data = append(reqData.Data, tableDetail)
 	//test
 	var tableDetail2 model.TaskTableDetail
 	tableData, err = g.DB("raw_sg").Model("ZDT_BM_1306").Ctx(ctx).All()
-	for _, v := range tableData {
-		tableDetail2.TableData = append(tableDetail.TableData, v)
+	var result2 []map[string]interface{}
+	var resultList2 [][]map[string]interface{}
+	err = json.Unmarshal([]byte(gconv.String(tableData)), &result2)
+	if err != nil {
+		return
+	}
+	resultList2, _ = libUtils.JsonFileSplit(ctx, result2, 64*1024)
+	var uploadList2 []g.Map
+	param = g.Map{
+		"username": "root",
+		"password": "Welcome123$%^",
+		"addr":     "123.59.0.99:22333",
+		"path":     "/root/lhy/Provider1_DB1_ZDT_BM_1306_",
+	}
+	for i, item := range resultList2 {
+		upload := g.Map{
+			"tableData": item,
+		}
+		uploadList2 = append(uploadList2, upload)
+		reqData.DataAddress = append(reqData.DataAddress, param["path"].(string)+gconv.String(i)+".json")
+		uploadByte, _ := json.Marshal(upload)
+		h := md5.New()
+		h.Write(uploadByte)
+		reqData.HashCode = append(reqData.HashCode, hex.EncodeToString(h.Sum(nil)))
+	}
+	err = libUtils.Upload(ctx, param, uploadList2)
+	if err != nil {
+		return
 	}
 	tableDetail2.SecureTableName = "Provider1_DB1_ZDT_BM_1306"
-	reqData.Data = append(reqData.Data, tableDetail2)
-	g.Log().Info(ctx, "reqData:", reqData)
 	client := g.Client()
 	baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
 	tmpData := gconv.String(reqData) //信工所要转成字符串才能接收，不然格式不是json，这是为什么
 	response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/data/provideRawData", tmpData)
+	g.Log().Info(ctx, "reqData:", tmpData)
 	if resErr != nil {
 		err = resErr
 	}

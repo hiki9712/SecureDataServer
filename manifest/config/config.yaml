@@ -131,7 +131,7 @@ kafka:
 #提供方地址
 providerAddress:
   1234:
-    address: 127.0.0.1:8808
+    address: 10.122.206.64:8808
 
 #需求方地址
 requestorAddress:
