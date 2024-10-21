@@ -13,6 +13,9 @@ WORKDIR /app
 # 将项目的 go.mod 和 go.sum 文件复制到工作目录
 COPY go.mod go.sum ./
 
+# 配置go镜像源
+RUN go env -w GOPROXY=https://mirrors.aliyun.com/goproxy/,direct
+
 # 下载所有依赖项
 RUN go mod download
 
