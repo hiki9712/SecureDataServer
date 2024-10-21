@@ -46,6 +46,7 @@ type AtomHandleReg struct {
 }
 
 type Negotiation struct {
+	NegotiationID    int64     `json:"negotiation_id"`
 	ServiceID        int64     `json:"service_id"`
 	ServiceName      string    `json:"service_name"`
 	ServiceOwnerID   int64     `json:"service_owner_id"`
@@ -67,6 +68,7 @@ type Negotiation struct {
 }
 
 type NegotiationList struct {
+	NegotiationID int64     `json:"negotiation_id"`
 	ServiceID   int64  `json:"service_id"`
 	ServiceName string `json:"service_name"`
 	TableName   string `json:"table_name"`
