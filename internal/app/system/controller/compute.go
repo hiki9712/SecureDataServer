@@ -65,6 +65,7 @@ func (c *computeController) SendRequest(ctx context.Context, req *system.Compute
 	}
 
 	res.Status = "success"
+	res.TaskID = gconv.Int64(data["id"])
 	return
 }
 
