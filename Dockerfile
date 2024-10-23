@@ -1,5 +1,5 @@
 # 使用官方 Golang 镜像作为构建阶段
-FROM golang:1.22-alpine AS builder
+FROM golang:1.22 AS builder
 
 # 设置环境变量
 ENV GO111MODULE=on \
