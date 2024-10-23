@@ -76,9 +76,15 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 		databaseName := fieldMap["databaseName"].(string)
 		tableName := fieldMap["tableName"].(string)
 
+		// 创建negotiationID
+		negotiationID := libUtils.GenUniqId(ctx)
+		g.Log().Info(ctx, "negotiation:NegotiationID:", negotiationID)
+		fieldMap["negotiationID"] = negotiationID
+
 		// 创建新的 Negotiation 实例
 		negotiationData := &model.Negotiation{}
 		negotiationData.ServiceID = serviceID  // 使用相同的 serviceID
+		negotiationData.NegotiationID = negotiationID // 使用新的 negotiationID
 		negotiationData.ServiceName = serviceName
 		negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
 		negotiationData.ProviderID = providerID
@@ -161,10 +167,12 @@ func (s *sNegotiation) SendNegotiationToProvider(ctx context.Context, data g.Map
 		fieldMap := field.(map[string]interface{})
 		databaseName := fieldMap["databaseName"].(string)
 		tableName := fieldMap["tableName"].(string)
+		negotiationID := int64(fieldMap["negotiationID"].(float64))
 
 		// 创建新的 Negotiation 实例
 		negotiationData := &model.Negotiation{}
 		negotiationData.ServiceID = serviceID  // 使用相同的 serviceID
+		negotiationData.NegotiationID = negotiationID // 使用新的 negotiationID
 		negotiationData.ServiceName = serviceName
 		negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
 		negotiationData.ProviderID = providerID

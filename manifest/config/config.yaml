@@ -73,7 +73,7 @@ gfToken:
 redis:
   # 单实例配置
   default:
-    address: 47.94.19.196:6379
+    address: 127.0.0.1:6379
     db: 1
     idleTimeout: "60s" #连接最大空闲时间，使用时间字符串例如30s/1m/1d
     maxConnLifetime: "90s" #连接最长存活时间，使用时间字符串例如30s/1m/1d
@@ -131,7 +131,7 @@ kafka:
 #提供方地址
 providerAddress:
   1234:
-    address: 10.122.206.64:8808
+    address: 127.0.0.1:8808
 
 #需求方地址
 requestorAddress:
