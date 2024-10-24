@@ -295,7 +295,7 @@ func (s *sNegotiation) SendNegotiationAgreeToRequestor(ctx context.Context, data
 func (s *sNegotiation) ListNegotiation(ctx context.Context, data g.Map) (negotiationDataList []model.NegotiationList, err error) {
 	g.Log().Info(ctx, "listData:", data)
 	if data["user_type"].(string) == "provider" {
-		providerData, _ := g.Model("negotiation_pro").Fields("status,service_id,service_name,provider_db,provider_table,negotiation_id").Where("provider_id = ? AND status = ?", int64(data["provider_id"].(float64)),"start").All()
+		providerData, _ := g.Model("negotiation_pro").Fields("status,service_id,service_name,provider_db,provider_table,negotiation_id").Where("provider_id = ? AND status = ?", int64(data["provider_id"].(float64)),"start").Order("update_time DESC").All()
 		g.Log().Info(ctx, "providerData:", providerData)
 		for _, v := range providerData {
 			negotiationData := model.NegotiationList{
@@ -310,7 +310,7 @@ func (s *sNegotiation) ListNegotiation(ctx context.Context, data g.Map) (negotia
 		}
 	}
 	if data["user_type"].(string) == "owner" {
-		ownerData, _ := g.Model("negotiation").Fields("status,service_id,service_name,provider_db,provider_table").Where("service_owner_id = ?", int64(data["owner_id"].(float64))).All()
+		ownerData, _ := g.Model("negotiation").Fields("status,service_id,service_name,provider_db,provider_table").Where("service_owner_id = ?", int64(data["owner_id"].(float64))).Order("update_time DESC").All()
 		g.Log().Info(ctx, "ownerData:", ownerData)
 		for _, v := range ownerData {
 			negotiationData := model.NegotiationList{
@@ -409,7 +409,7 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
     	g.Log().Info(ctx, "sql:", sql)
     
     	// 执行创建表
-    	_, err = g.DB().Exec(ctx, sql)
+    	_, err = g.DB("biz_dms").Exec(ctx, sql)
     	if err != nil {
         	g.Model("negotiation").Data("status", consts.NegotiationFail, "update_time", time.Now()).Where("service_id = ?", serviceID).Update()
         	return
