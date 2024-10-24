@@ -32,18 +32,6 @@ database:
 
   default:
     link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
-<<<<<<< HEAD
-    debug:  true
-    charset: "utf8mb4" #数据库编码
-    dryRun: false #空跑
-    maxIdle: 10 #连接池最大闲置的连接数
-    maxOpen: 10 #连接池最大打开的连接数
-    maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
-  
-  biz_dms:
-    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
-=======
->>>>>>> 8e1efdfb15a83aa7dcd77ba488506e807241a3a4
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -143,9 +131,9 @@ kafka:
 #提供方地址
 providerAddress:
   1234:
-    address: 127.0.0.1:8808
+    address: 192.168.10.52:8808
 
 #需求方地址
 requestorAddress:
   12:
-    address: 127.0.0.1:8808
+    address: 192.168.10.48:8808
