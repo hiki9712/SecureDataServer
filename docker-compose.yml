@@ -11,9 +11,10 @@ services:
       - "8808:8808"
     environment:
       TZ: Asia/Shanghai
+      ip: 192.168.2.204
     volumes:
       - ./manifest/config/config-offline.yaml:/app/manifest/config/config-offline.yaml      # 挂载配置文件
-    command: ["./main"]
+    command: ["sh","service.sh","startonline"]
     depends_on:
       - redis    # 声明服务依赖
   
