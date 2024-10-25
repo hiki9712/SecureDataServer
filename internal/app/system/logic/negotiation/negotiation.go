@@ -58,8 +58,8 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 		negotiationData.UpdateTime = time.Now()
 		_, err = g.Model("negotiation").Insert(negotiationData)
 	*/
-	var negotiationData *model.Negotiation
-	var negotiationLogData *model.NegotiationLog
+	// var negotiationData *model.Negotiation
+	// var negotiationLogData *model.NegotiationLog
 
 	g.Log().Info(ctx, "data:", data)
 	// 提取单条记录
@@ -98,30 +98,30 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 		negotiationData.CreateTime = time.Now()
 		negotiationData.UpdateTime = time.Now()
 
-		// 创建新的 NegotiationLog 实例
-		negotiationLogData = &model.NegotiationLog{}
-		negotiationLogData.NegotiationLogID = 0          // 自增ID
-		negotiationLogData.ServiceID = serviceID         // 使用相同的 serviceID
-		negotiationLogData.NegotiationID = negotiationID // 使用新的 negotiationID
-		negotiationLogData.ServiceName = serviceName
-		negotiationLogData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
-		negotiationLogData.ProviderID = providerID
-		negotiationLogData.ProviderTable = tableName // 记录当前表名
-		negotiationLogData.ProviderDB = databaseName // 记录当前数据库名
-		negotiationLogData.Status = consts.NegotiationStart
-		negotiationLogData.DelFlag = 0
-		negotiationLogData.CreateTime = time.Now()
-		negotiationLogData.UpdateTime = time.Now()
+		// // 创建新的 NegotiationLog 实例
+		// negotiationLogData = &model.NegotiationLog{}
+		// negotiationLogData.NegotiationLogID = 0          // 自增ID
+		// negotiationLogData.ServiceID = serviceID         // 使用相同的 serviceID
+		// negotiationLogData.NegotiationID = negotiationID // 使用新的 negotiationID
+		// negotiationLogData.ServiceName = serviceName
+		// negotiationLogData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
+		// negotiationLogData.ProviderID = providerID
+		// negotiationLogData.ProviderTable = tableName // 记录当前表名
+		// negotiationLogData.ProviderDB = databaseName // 记录当前数据库名
+		// negotiationLogData.Status = consts.NegotiationStart
+		// negotiationLogData.DelFlag = 0
+		// negotiationLogData.CreateTime = time.Now()
+		// negotiationLogData.UpdateTime = time.Now()
 
 		// 插入到数据库
 		_, err = g.Model("negotiation").Insert(negotiationData)
 		if err != nil {
 			return 0, err // 如果插入失败，返回错误
 		}
-		_, log_err := g.Model("negotiation_pro_log").Insert(negotiationLogData)
-		if log_err != nil {
-			return 0, log_err // 如果插入失败，返回错误
-		}
+		// _, log_err := g.Model("negotiation_pro_log").Insert(negotiationLogData)
+		// if log_err != nil {
+		// 	return 0, log_err // 如果插入失败，返回错误
+		// }
 
 	}
 
@@ -141,7 +141,7 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 	}
 	// 在这里可以处理成功的响应，例如解析响应内容
 	g.Log().Info(ctx, "协商信息发送成功，响应:", response)
-	return negotiationData.ServiceID, err
+	return serviceID, err
 }
 
 // 提供方处理接收到的协商
@@ -339,7 +339,7 @@ func (s *sNegotiation) SendNegotiationAgreeToRequestor(ctx context.Context, data
 func (s *sNegotiation) ListNegotiation(ctx context.Context, data g.Map) (negotiationDataList []model.NegotiationList, err error) {
 	g.Log().Info(ctx, "listData:", data)
 	if data["user_type"].(string) == "provider" {
-		providerData, _ := g.Model("negotiation_pro").Fields("status,service_id,service_name,provider_db,provider_table,negotiation_id").Where("provider_id = ? AND status = ?", int64(data["provider_id"].(float64)), "start").All()
+		providerData, _ := g.Model("negotiation_pro").Fields("status,service_id,service_name,provider_db,provider_table,negotiation_id").Where("provider_id = ? AND status = ?", int64(data["provider_id"].(float64)), "start").Order("update_time DESC").All()
 		g.Log().Info(ctx, "providerData:", providerData)
 		for _, v := range providerData {
 			negotiationData := model.NegotiationList{
@@ -447,13 +447,13 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
 			}
 		}
 		g.Log().Info(ctx, "primaryKey:", PrimaryKey)
-		sql += fmt.Sprintf("PRIMARY KEY (`%s`)", strings.Join(PrimaryKey, ","))
+		sql += fmt.Sprintf("PRIMARY KEY (`%s`)", strings.Join(PrimaryKey, "`,`"))
 		sql = strings.TrimRight(sql, ",")
 		sql += fmt.Sprintf(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;")
 		g.Log().Info(ctx, "sql:", sql)
 
 		// 执行创建表
-		_, err = g.DB().Exec(ctx, sql)
+		_, err = g.DB("biz_dms").Exec(ctx, sql)
 		if err != nil {
 			g.Model("negotiation").Data("status", consts.NegotiationFail, "update_time", time.Now()).Where("service_id = ?", serviceID).Update()
 			return
