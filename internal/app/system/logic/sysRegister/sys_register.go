@@ -33,6 +33,7 @@ func (s *sSysRegister) SendToBaseApi(ctx context.Context, data g.Map) (res *syst
 		g.Log().Info(ctx, "ip:", "http://"+baseCfg["address"].(string)+"/handle/register")
 		g.Log().Info(ctx, "data:", data)
 		sendData := g.Map{
+			"handleName":      data["handleName"],
 			"handleType":      data["handleType"],
 			"keyValueContent": data["keyValueContent"],
 			"keyValueCount":   data["keyValueCount"],

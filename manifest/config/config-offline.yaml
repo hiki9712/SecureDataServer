@@ -1,5 +1,5 @@
 server:
-  address:     "0.0.0.0:8809"
+  address:     "0.0.0.0:8808"
   serverRoot: "resource/public"
   dumpRouterMap: false
   routeOverWrite: true

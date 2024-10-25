@@ -42,5 +42,6 @@ COPY --from=builder /app /app
 EXPOSE 8808
 
 # 设置启动命令
-#CMD ["./main"]
-CMD ["sh ./service.sh startonline"]
+CMD ["./main"]
+#CMD ["PWD"]
+#CMD ["sh","service.sh","startonline"]

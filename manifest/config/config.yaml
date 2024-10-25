@@ -1,5 +1,5 @@
 server:
-  address:     "0.0.0.0:8809"
+  address:     "0.0.0.0:8808"
   serverRoot: "resource/public"
   dumpRouterMap: false
   routeOverWrite: true
@@ -38,7 +38,7 @@ database:
     maxIdle: 10 #连接池最大闲置的连接数
     maxOpen: 10 #连接池最大打开的连接数
     maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
-  
+
   biz_dms:
     link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true

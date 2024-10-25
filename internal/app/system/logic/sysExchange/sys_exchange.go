@@ -158,7 +158,7 @@ func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map) (err error
 			"username": paramCfg["username"].(string),
 			"password": paramCfg["password"].(string),
 			"addr":     paramCfg["addr"].(string),
-			"path":     "/root/lhy/" + table.(map[string]interface{})["securetable_name"].(string) + "_",
+			"path":     "/root/" + table.(map[string]interface{})["securetable_name"].(string) + "_",
 		}
 		for i, item := range resultList {
 			upload := g.Map{
@@ -177,39 +177,6 @@ func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map) (err error
 		}
 		tableDetail.SecureTableName = table.(map[string]interface{})["securetable_name"].(string)
 	}
-	////test
-	//var tableDetail2 model.TaskTableDetail
-	//tableData, err = g.DB("raw_sg").Model("ZDT_BM_1306").Ctx(ctx).All()
-	//var result2 []map[string]interface{}
-	//var resultList2 [][]map[string]interface{}
-	//err = json.Unmarshal([]byte(gconv.String(tableData)), &result2)
-	//if err != nil {
-	//	return
-	//}
-	//resultList2, _ = libUtils.JsonFileSplit(ctx, result2, 64*1024)
-	//var uploadList2 []g.Map
-	//param = g.Map{
-	//	"username": "root",
-	//	"password": "Welcome123$%^",
-	//	"addr":     "123.59.0.99:22333",
-	//	"path":     "/root/lhy/Provider1_DB1_ZDT_BM_1306_",
-	//}
-	//for i, item := range resultList2 {
-	//	upload := g.Map{
-	//		"tableData": item,
-	//	}
-	//	uploadList2 = append(uploadList2, upload)
-	//	reqData.DataAddress = append(reqData.DataAddress, param["path"].(string)+gconv.String(i)+".json")
-	//	uploadByte, _ := json.Marshal(upload)
-	//	h := md5.New()
-	//	h.Write(uploadByte)
-	//	reqData.HashCode = append(reqData.HashCode, hex.EncodeToString(h.Sum(nil)))
-	//}
-	//err = libUtils.Upload(ctx, param, uploadList2)
-	//if err != nil {
-	//	return
-	//}
-	//tableDetail2.SecureTableName = "Provider1_DB1_ZDT_BM_1306"
 	client := g.Client()
 	baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
 	tmpData := gconv.String(reqData) //信工所要转成字符串才能接收，不然格式不是json，这是为什么
