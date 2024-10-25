@@ -28,7 +28,7 @@ func New() *sCompute {
 func (s *sCompute) ListCompute(ctx context.Context, data g.Map) (computeData []system.ComputeTask, err error) {
 	g.Log().Info(ctx, "listData:", data)
 	if data["user_type"].(string) == "owner" {
-		err := g.Model("compute_reg").Where("service_owner_id = ?", int64(data["owner_id"].(float64))).Scan(&computeData)
+		err := g.Model("compute_reg").Where("service_owner_id = ?", int64(data["owner_id"].(float64))).Order("update_time DESC").Scan(&computeData)
 		if err != nil {
 			return nil, err
 		}
