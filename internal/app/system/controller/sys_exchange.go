@@ -51,13 +51,13 @@ func (c *exchangeController) SendData(ctx context.Context, req *system.SendDataR
 		g.Log().Error(ctx, err)
 		return
 	}
-	tableData, handleID, err := service.SysExchange().FetchTable(ctx, data)
-	if err != nil {
-		g.Log().Error(ctx, err)
-		return
-	}
-	data["handleID"] = handleID
-	err = service.SysExchange().SendToMasking(ctx, data, tableData)
+	//tableData, handleID, err := service.SysExchange().FetchTable(ctx, data)
+	//if err != nil {
+	//	g.Log().Error(ctx, err)
+	//	return
+	//}
+	//data["handleID"] = handleID
+	err = service.SysExchange().SendToMasking(ctx, data)
 	if err != nil {
 		return
 	}

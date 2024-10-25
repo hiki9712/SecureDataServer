@@ -57,7 +57,7 @@ type TaskDataLog struct {
 }
 
 type ProvideRawDataReq struct {
-	TaskID      int32    `json:"taskID"`
+	TaskID      int64    `json:"taskID"`
 	HandleID    int64    `json:"handleID"`
 	DataAddress []string `json:"dataAddress"`
 	HashCode    []string `json:"hashCode"`

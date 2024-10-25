@@ -1,5 +1,5 @@
 server:
-  address:     "0.0.0.0:8808"
+  address:     "0.0.0.0:8809"
   serverRoot: "resource/public"
   dumpRouterMap: false
   routeOverWrite: true
@@ -31,7 +31,16 @@ database:
     Path: "resource/log/sql"
 
   default:
-    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/g_fast_demo?charset=utf8mb4&parseTime=true&loc=Local"
+    debug:  true
+    charset: "utf8mb4" #数据库编码
+    dryRun: false #空跑
+    maxIdle: 10 #连接池最大闲置的连接数
+    maxOpen: 10 #连接池最大打开的连接数
+    maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
+
+  biz_dms:
+    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -131,9 +140,17 @@ kafka:
 #提供方地址
 providerAddress:
   1234:
-    address: 192.168.10.52:8808
+    address: 192.168.2.204:8809
+  123:
+    address: 192.168.2.204:8809
 
 #需求方地址
 requestorAddress:
   12:
-    address: 192.168.10.48:8808
+    address: 192.168.2.204:8808
+
+#上传地址
+uploadAddress:
+  username: "root"
+  password: "Welcome123$%^"
+  addr: "123.59.0.99:22333"

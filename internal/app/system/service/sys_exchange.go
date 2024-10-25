@@ -12,7 +12,7 @@ type (
 		StoreExchangeTaskToDB(ctx context.Context, data g.Map) (message string, err error)
 		SendExchangeReqToKafka(ctx context.Context, data g.Map) error
 		FetchTable(ctx context.Context, data g.Map) (tableData gdb.Result, handleID int64, err error)
-		SendToMasking(ctx context.Context, data g.Map, tableData gdb.Result) error
+		SendToMasking(ctx context.Context, data g.Map) error
 	}
 )
 

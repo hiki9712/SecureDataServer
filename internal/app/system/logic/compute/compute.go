@@ -161,8 +161,8 @@ func (s *sCompute) SendReqByComputeType(ctx context.Context, data g.Map) (res in
 			err = resErr
 			return
 		}
-		responseString = response.ReadAllString()
-		// g.Log().Info(ctx, "response:", responseString)
+		responseString := response.ReadAllString()
+		g.Log().Info(ctx, "response:", responseString)
 		defer func(response *gclient.Response) {
 			err := response.Close()
 			if err != nil {

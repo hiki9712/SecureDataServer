@@ -117,6 +117,7 @@ func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData gd
 		providerID int64
 		taskData   model.TaskData
 	)
+	g.Log().Info(ctx, "data:", data)
 	taskID = int64(data["taskID"].(float64))
 	providerID = int64(data["providerID"].(float64))
 	err = g.Model("task").Where("task_id = ?", taskID).Scan(&taskData)
@@ -130,74 +131,85 @@ func (s *sSysExchange) FetchTable(ctx context.Context, data g.Map) (tableData gd
 	return
 }
 
-func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map, tableData gdb.Result) (err error) {
+func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map) (err error) {
+	g.Log().Info(ctx, "data:", data)
 	var reqData model.ProvideRawDataReq
-	reqData.TaskID = int32(data["taskID"].(float64))
-	reqData.HandleID = data["handleID"].(int64)
-	var tableDetail model.TaskTableDetail
-	var result []map[string]interface{}
-	var resultList [][]map[string]interface{}
-	err = json.Unmarshal([]byte(gconv.String(tableData)), &result)
-	if err != nil {
-		return
-	}
-	resultList, _ = libUtils.JsonFileSplit(ctx, result, 64*1024)
-	var uploadList []g.Map
-	param := g.Map{
-		"username": "root",
-		"password": "Welcome123$%^",
-		"addr":     "123.59.0.99:22333",
-		"path":     "/root/lhy/Provider1_DB1_POB_POINT_",
-	}
-	for i, item := range resultList {
-		upload := g.Map{
-			"tableData": item,
+	for _, table := range data["tableList"].([]interface{}) {
+		g.Log().Info(ctx, "table:", table)
+		reqData.TaskID = int64(table.(map[string]interface{})["task_id"].(float64))
+		reqData.HandleID = int64(table.(map[string]interface{})["handle_id"].(float64))
+		var tableDetail model.TaskTableDetail
+		var result []map[string]interface{}
+		var resultList [][]map[string]interface{}
+		var dbName string
+		var tableName string
+		var tableData gdb.Result
+		dbName = table.(map[string]interface{})["db_name"].(string)
+		tableName = table.(map[string]interface{})["table_name"].(string)
+		tableData, err = g.DB(dbName).Model(tableName).Ctx(ctx).All()
+		err = json.Unmarshal([]byte(gconv.String(tableData)), &result)
+		if err != nil {
+			return
 		}
-		uploadList = append(uploadList, upload)
-		reqData.DataAddress = append(reqData.DataAddress, param["path"].(string)+gconv.String(i)+".json")
-		uploadByte, _ := json.Marshal(upload)
-		h := md5.New()
-		h.Write(uploadByte)
-		reqData.HashCode = append(reqData.HashCode, hex.EncodeToString(h.Sum(nil)))
-	}
-	err = libUtils.Upload(ctx, param, uploadList)
-	if err != nil {
-		return
-	}
-	tableDetail.SecureTableName = "Provider1_DB1_POB_POINT"
-	//test
-	var tableDetail2 model.TaskTableDetail
-	tableData, err = g.DB("raw_sg").Model("ZDT_BM_1306").Ctx(ctx).All()
-	var result2 []map[string]interface{}
-	var resultList2 [][]map[string]interface{}
-	err = json.Unmarshal([]byte(gconv.String(tableData)), &result2)
-	if err != nil {
-		return
-	}
-	resultList2, _ = libUtils.JsonFileSplit(ctx, result2, 64*1024)
-	var uploadList2 []g.Map
-	param = g.Map{
-		"username": "root",
-		"password": "Welcome123$%^",
-		"addr":     "123.59.0.99:22333",
-		"path":     "/root/lhy/Provider1_DB1_ZDT_BM_1306_",
-	}
-	for i, item := range resultList2 {
-		upload := g.Map{
-			"tableData": item,
+		resultList, _ = libUtils.JsonFileSplit(ctx, result, 64*1024)
+		var uploadList []g.Map
+		paramCfg := g.Cfg().MustGet(ctx, "uploadAddress").Map()
+		param := g.Map{
+			"username": paramCfg["username"].(string),
+			"password": paramCfg["password"].(string),
+			"addr":     paramCfg["addr"].(string),
+			"path":     "/root/lhy/" + table.(map[string]interface{})["securetable_name"].(string) + "_",
 		}
-		uploadList2 = append(uploadList2, upload)
-		reqData.DataAddress = append(reqData.DataAddress, param["path"].(string)+gconv.String(i)+".json")
-		uploadByte, _ := json.Marshal(upload)
-		h := md5.New()
-		h.Write(uploadByte)
-		reqData.HashCode = append(reqData.HashCode, hex.EncodeToString(h.Sum(nil)))
+		for i, item := range resultList {
+			upload := g.Map{
+				"tableData": item,
+			}
+			uploadList = append(uploadList, upload)
+			reqData.DataAddress = append(reqData.DataAddress, param["path"].(string)+gconv.String(i)+".json")
+			uploadByte, _ := json.Marshal(upload)
+			h := md5.New()
+			h.Write(uploadByte)
+			reqData.HashCode = append(reqData.HashCode, hex.EncodeToString(h.Sum(nil)))
+		}
+		err = libUtils.Upload(ctx, param, uploadList)
+		if err != nil {
+			return
+		}
+		tableDetail.SecureTableName = table.(map[string]interface{})["securetable_name"].(string)
 	}
-	err = libUtils.Upload(ctx, param, uploadList2)
-	if err != nil {
-		return
-	}
-	tableDetail2.SecureTableName = "Provider1_DB1_ZDT_BM_1306"
+	////test
+	//var tableDetail2 model.TaskTableDetail
+	//tableData, err = g.DB("raw_sg").Model("ZDT_BM_1306").Ctx(ctx).All()
+	//var result2 []map[string]interface{}
+	//var resultList2 [][]map[string]interface{}
+	//err = json.Unmarshal([]byte(gconv.String(tableData)), &result2)
+	//if err != nil {
+	//	return
+	//}
+	//resultList2, _ = libUtils.JsonFileSplit(ctx, result2, 64*1024)
+	//var uploadList2 []g.Map
+	//param = g.Map{
+	//	"username": "root",
+	//	"password": "Welcome123$%^",
+	//	"addr":     "123.59.0.99:22333",
+	//	"path":     "/root/lhy/Provider1_DB1_ZDT_BM_1306_",
+	//}
+	//for i, item := range resultList2 {
+	//	upload := g.Map{
+	//		"tableData": item,
+	//	}
+	//	uploadList2 = append(uploadList2, upload)
+	//	reqData.DataAddress = append(reqData.DataAddress, param["path"].(string)+gconv.String(i)+".json")
+	//	uploadByte, _ := json.Marshal(upload)
+	//	h := md5.New()
+	//	h.Write(uploadByte)
+	//	reqData.HashCode = append(reqData.HashCode, hex.EncodeToString(h.Sum(nil)))
+	//}
+	//err = libUtils.Upload(ctx, param, uploadList2)
+	//if err != nil {
+	//	return
+	//}
+	//tableDetail2.SecureTableName = "Provider1_DB1_ZDT_BM_1306"
 	client := g.Client()
 	baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
 	tmpData := gconv.String(reqData) //信工所要转成字符串才能接收，不然格式不是json，这是为什么
