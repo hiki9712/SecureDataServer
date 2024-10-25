@@ -59,7 +59,7 @@ func (c *computeController) SendRequest(ctx context.Context, req *system.Compute
 		return
 	}
 	g.Log().Info(ctx, "compute info:", data)
-	_, err = service.Compute().SendReqByComputeType(ctx, data)
+	_, err = service.Compute().SendReqByComputeType(ctx, data) // 开始查询
 	if err != nil {
 		return
 	}
@@ -103,7 +103,6 @@ func (c *computeController) GetResult(ctx context.Context, req *system.ComputeRe
 	}
 
 	jsonStr := gconv.String(data)
-
 	err = json.Unmarshal([]byte(jsonStr), result_res)
 	if err != nil {
 		return
@@ -115,6 +114,11 @@ func (c *computeController) GetResult(ctx context.Context, req *system.ComputeRe
 
 		// 通过 WebSocket 发送消息
 		websocket.SendWebSocketMessage(ctx, taskID, resultValue)
+	}
+
+	err = service.Compute().UpdateComputeRegToDB(ctx, data)
+	if err != nil {
+		return
 	}
 
 	res.Status = "success"

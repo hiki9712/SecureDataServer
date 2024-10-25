@@ -45,6 +45,25 @@ type AtomHandleReg struct {
 	Remark          string        `json:"remark"`
 }
 
+type AtomHandleRegLog struct {
+	HandleLogID     int64         `json:"handle_log_id"`
+	HandleID        int64         `json:"handle_id"`
+	HandleName      string        `json:"handle_name"`
+	HandleType      string        `json:"handle_type"`
+	CreateTime      time.Time     `json:"create_time"`
+	ServiceID       int64         `json:"service_id"`
+	ServiceName     string        `json:"service_name"`
+	ProviderID      int64         `json:"provider_id"`
+	KeyValueCount   int           `json:"keyValueCount"`
+	KeyValueContent []interface{} `json:"keyValueContent"`
+	DelFlag         int           `json:"del_flag"`
+	CreateBy        string        `json:"create_by"`
+	UpdateBy        string        `json:"update_by"`
+	UpdateTime      time.Time     `json:"update_time"`
+	Remark          string        `json:"remark"`
+}
+
+
 type Negotiation struct {
 	NegotiationID    int64     `json:"negotiation_id"`
 	ServiceID        int64     `json:"service_id"`
@@ -66,6 +85,30 @@ type Negotiation struct {
 	UpdateTime       time.Time `json:"update_time"`
 	Remark           string    `json:"remark"`
 }
+
+type NegotiationLog struct {
+	NegotiationLogID int64     `json:"negotiation_log_id"`
+	NegotiationID    int64     `json:"negotiation_id"`
+	ServiceID        int64     `json:"service_id"`
+	ServiceName      string    `json:"service_name"`
+	ServiceOwnerID   int64     `json:"service_owner_id"`
+	ServiceOwnerName string    `json:"service_owner_name"`
+	ProviderID       int64     `json:"provider_id"`
+	ProviderName     string    `json:"provider_name"`
+	ProviderTable    string    `json:"provider_table"`
+	ProviderDB       string    `json:"provider_db"`
+	SecureTableName  string    `json:"securetable_name"`
+	SecureTableField string    `json:"securetable_field"`
+	Status           string    `json:"status"`
+	Message          string    `json:"message"`
+	DelFlag          int       `json:"del_flag"`
+	CreateBy         string    `json:"create_by"`
+	CreateTime       time.Time `json:"create_time"`
+	UpdateBy         string    `json:"update_by"`
+	UpdateTime       time.Time `json:"update_time"`
+	Remark           string    `json:"remark"`
+}
+
 
 type NegotiationList struct {
 	NegotiationID int64     `json:"negotiation_id"`
