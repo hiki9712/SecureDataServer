@@ -31,7 +31,7 @@ database:
     Path: "resource/log/sql"
 
   default:
-    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_test?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/g_fast_demo?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -140,10 +140,9 @@ kafka:
 #提供方地址
 providerAddress:
   1234:
-    # address: 192.168.2.204:8808
-    address: 10.21.146.6:8808
+    address: 192.168.2.204:8809
   123:
-    address: 192.168.2.204:8808
+    address: 192.168.2.204:8809
 
 #需求方地址
 requestorAddress:
