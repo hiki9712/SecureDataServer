@@ -108,6 +108,6 @@ func (c *loginController) Login(ctx context.Context, req *system.UserLoginReq) (
 
 // LoginOut 退出登录
 func (c *loginController) LoginOut(ctx context.Context, req *system.UserLoginOutReq) (res *system.UserLoginOutRes, err error) {
-	err = service.GfToken().RemoveToken(ctx, service.GfToken().GetRequestToken(g.RequestFromCtx(ctx)))
+	//err = service.GfToken().RemoveToken(ctx, service.GfToken().GetRequestToken(g.RequestFromCtx(ctx)))
 	return
 }
