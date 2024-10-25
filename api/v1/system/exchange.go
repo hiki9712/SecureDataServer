@@ -2,6 +2,7 @@ package system
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 )
 
 type ExchangeReq struct {
@@ -18,9 +19,8 @@ type ExchangeRes struct {
 }
 
 type SendDataReq struct {
-	g.Meta     `mime:"application/json" path:"/exchange/sendData" tags:"数据交换" method:"post" summary:"数据提供方发送业务数据"`
-	TaskID     int64 `json:"taskID"`
-	ProviderID int64 `json:"providerID"`
+	g.Meta    `mime:"application/json" path:"/exchange/sendData" tags:"数据交换" method:"post" summary:"数据提供方发送业务数据"`
+	TableList []model.TaskData `json:"tableList"`
 }
 
 type SendDataRes struct {
@@ -28,4 +28,10 @@ type SendDataRes struct {
 	Status  string `json:"status"`
 	TaskID  int64  `json:"taskID"`
 	Message string `json:"message"`
+}
+
+type tableDetail struct {
+	DB              string `json:"db"`
+	Table           string `json:"table"`
+	SecureTableName string `json:"secureTableName"`
 }

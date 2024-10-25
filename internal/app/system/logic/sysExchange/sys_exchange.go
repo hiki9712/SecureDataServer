@@ -14,7 +14,6 @@ import (
 	"github.com/tiger1103/gfast/v3/internal/app/system/model"
 	"github.com/tiger1103/gfast/v3/internal/app/system/service"
 	"github.com/tiger1103/gfast/v3/library/libUtils"
-	"strconv"
 )
 
 func init() {
@@ -45,47 +44,65 @@ func (s *sSysExchange) ResolveReq(ctx context.Context, req interface{}) (data g.
 func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (message string, err error) {
 	err = g.Try(ctx, func(ctx context.Context) {
 		var (
-			negotiationDetail model.NegotiationDetail
-			node              *snowflake.Node
-			taskId            int64
-			insertData        model.TaskData
-			postData          system.SendDataReq
+			negotiationDetailList []model.NegotiationDetail
+			node                  *snowflake.Node
+			taskId                int64
+			insertData            model.TaskData
+			postData              system.SendDataReq
+			postDataList          map[string][]model.TaskData
 		)
 
 		serviceID := int64(data["serviceID"].(float64))
-		err = g.Model("negotiation").Where("service_id = ?", serviceID).Scan(&negotiationDetail)
-		g.Log().Info(ctx, "negotiationDetail:", negotiationDetail)
-		if negotiationDetail.Status != "success" || negotiationDetail.DelFlag != 0 {
-			g.Log().Info(ctx, "service not ready or deleted, service id:", serviceID)
-			message = "service not ready or deleted"
-			return
+		err = g.Model("negotiation").Where("service_id = ?", serviceID).Scan(&negotiationDetailList)
+		g.Log().Info(ctx, "negotiationDetailList:", negotiationDetailList)
+		postDataList = make(map[string][]model.TaskData)
+		for _, negotiationDetail := range negotiationDetailList {
+			if negotiationDetail.Status != "success" || negotiationDetail.DelFlag != 0 {
+				g.Log().Info(ctx, "service not ready or deleted, service id:", serviceID)
+				message = "service not ready or deleted"
+				return
+			}
+			node, err = snowflake.NewNode(1)
+			taskId = node.Generate().Int64()
+			insertData.TaskID = taskId
+			insertData.ServiceID = serviceID
+			insertData.Status = "pending"
+			insertData.ServiceName = negotiationDetail.ServiceName
+			insertData.ServiceOwnerID = negotiationDetail.ServiceOwnerID
+			insertData.ProviderID = negotiationDetail.ProviderID
+			insertData.DBName = negotiationDetail.ProviderDB
+			insertData.TableName = negotiationDetail.ProviderTable
+			insertData.SecureTableName = negotiationDetail.SecureTableName
+			insertData.HandleID = int64(data["handleID"].(float64))
+			providerIDString := gconv.String(negotiationDetail.ProviderID)
+			if _, exists := postDataList[providerIDString]; exists {
+				postDataList[providerIDString] = append(postDataList[providerIDString], insertData)
+			} else {
+				postDataList[providerIDString] = []model.TaskData{insertData}
+			}
+			_, err = g.Model("task").Data(insertData).Insert()
 		}
-		node, err = snowflake.NewNode(1)
-		taskId = node.Generate().Int64()
-		insertData.TaskID = taskId
-		insertData.ServiceID = serviceID
-		insertData.Status = "pending"
-		insertData.ServiceName = negotiationDetail.ServiceName
-		insertData.ServiceOwnerID = negotiationDetail.ServiceOwnerID
-		insertData.ProviderID = negotiationDetail.ProviderID
-		insertData.DBName = negotiationDetail.ProviderDB
-		insertData.TableName = negotiationDetail.ProviderTable
-		insertData.SecureTableName = negotiationDetail.SecureTableName
-		insertData.HandleID = int64(data["handleID"].(float64))
-		_, err = g.Model("task").Data(insertData).Insert()
-		client := g.Client()
-		postData.TaskID = taskId
-		postData.ProviderID = negotiationDetail.ProviderID
-		g.Log().Info(ctx, "postData:", postData)
-		providerCfg := g.Cfg().MustGet(ctx, "providerAddress."+strconv.FormatInt(negotiationDetail.ProviderID, 10)).Map()
-		response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/exchange/sendData", postData)
-		if resErr != nil {
-			err = resErr
-			g.Log().Info(ctx, "resErr:", resErr)
-			return
+		g.Log().Info(ctx, "postDataList:", postDataList)
+		for providerID, itemList := range postDataList {
+			client := g.Client()
+			postData.TableList = itemList
+			//postData.TaskID = itemList[providerID]
+			//taskIDList := make([]string, 0)
+			//for _, item := range itemList {
+			//	taskIDList = append(taskIDList, gconv.String(item.TaskID))
+			//}
+			//postData.HandleID = int64(data["handleID"].(float64))
+			g.Log().Info(ctx, "postData:", postData)
+			providerCfg := g.Cfg().MustGet(ctx, "providerAddress."+providerID).Map()
+			response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/exchange/sendData", postData)
+			if resErr != nil {
+				err = resErr
+				g.Log().Info(ctx, "resErr:", resErr)
+				return
+			}
+			responseString := response.ReadAllString()
+			g.Log().Info(ctx, "response:", responseString)
 		}
-		responseString := response.ReadAllString()
-		g.Log().Info(ctx, "response:", responseString)
 	})
 	return
 }
