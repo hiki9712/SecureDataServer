@@ -2,6 +2,7 @@ package compute
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -63,8 +64,9 @@ func (s *sCompute) UpdateResultToDB(ctx context.Context, result_value string, Ta
 
 func (s *sCompute) StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAlter g.Map, err error) {
 	var (
-		serviceID  int64
-		insertData model.ComputeReg
+		serviceID     int64
+		insertData    model.ComputeReg
+		insertLogData model.ComputeRegLog
 		// insertData_result model.ComputeResult
 		handleID int64
 	)
@@ -75,33 +77,50 @@ func (s *sCompute) StoreComputeTaskToDB(ctx context.Context, data g.Map) (dataAl
 	dataAlter = data
 	dataAlter["id"] = id
 	dataAlter["handle_id"] = handleID
+
+	// 处理interfacedata
+	critiera_json, _ := json.Marshal(data["criteria"])
+	identifier_json, _ := json.Marshal(data["identifier"])
+
 	insertData.ComputeTaskID = id
 	insertData.ServiceID = serviceID
 	insertData.ComputeType = int(data["computeType"].(float64))
 	insertData.CreateTime = time.Now()
 	insertData.UpdateTime = time.Now()
 	insertData.QueryStartTime = time.Now()
-	insertData.ServiceOwnerID = 12
-	insertData.ProviderIDList = "1234"
 	//insertData.QueryEndTime =
+	insertData.Criteria = string(critiera_json)
+	insertData.Identifier = string(identifier_json)
 	insertData.ServiceOwnerID = 12
 	insertData.ProviderIDList = "1234"
+	insertData.Status = "commited"
 	insertData.HandleList = gconv.String(handleID)
 
 	g.Log().Info(ctx, "insertData:", insertData)
 	_, err = g.Model("compute_reg").Data(insertData).Insert()
 
-	// insert result
-	// insertData_result.ComputeResultID = id
-	// insertData_result.ServiceID = serviceID
-	// insertData_result.ComputeType = int(data["computeType"].(float64))
-	// insertData_result.CreateTime = time.Now()
-	// insertData_result.UpdateTime = time.Now()
-	// insertData_result.QueryStartTime = time.Now()
-	// //insertData_result.QueryEndTime =
-	// insertData_result.HandleList = gconv.String(handleID)
-	// //g.Log().Info(ctx, "insertData_result:", insertData_result)
-	// _, err = g.Model("compute_result").Data(insertData_result).Insert()
+	if err != nil {
+		g.Log().Error(ctx, err)
+	}
+
+	// insert log
+	insertLogData.ComputeTaskLogID = 0 // 自增id
+	insertLogData.ComputeTaskID = id
+	insertLogData.ServiceID = serviceID
+	insertLogData.ComputeType = int(data["computeType"].(float64))
+	insertLogData.Criteria = string(critiera_json)
+	insertLogData.Identifier = string(identifier_json)
+	insertLogData.ServiceOwnerID = 12
+	insertLogData.ProviderIDList = "1234"
+	insertLogData.Status = "committed"
+	insertLogData.HandleList = gconv.String(handleID)
+	insertLogData.Time = time.Now()
+
+	g.Log().Info(ctx, "insertLogData:", insertLogData)
+	_, err = g.Model("compute_reg_log").Data(insertLogData).Insert()
+	if err != nil {
+		g.Log().Error(ctx, err)
+	}
 
 	return
 }
@@ -128,8 +147,8 @@ func (s *sCompute) SendReqByComputeType(ctx context.Context, data g.Map) (res in
 			err = resErr
 			return
 		}
-		responseString := response.ReadAllString()
-		g.Log().Info(ctx, "response:", responseString)
+		// responseString := response.ReadAllString()
+		// g.Log().Info(ctx, "response:", responseString)
 		identifierData.TaskID = postData.TaskID
 		//identifierData.Identifier.FieldName = "CUSTOMERID"
 		identifierData.Identifier.FieldName = data["identifier"].(map[string]interface{})["fieldName"].(string)
@@ -143,13 +162,80 @@ func (s *sCompute) SendReqByComputeType(ctx context.Context, data g.Map) (res in
 			return
 		}
 		responseString = response.ReadAllString()
-		g.Log().Info(ctx, "response:", responseString)
+		// g.Log().Info(ctx, "response:", responseString)
 		defer func(response *gclient.Response) {
 			err := response.Close()
 			if err != nil {
 				g.Log().Error(ctx, err)
 			}
 		}(response)
+	}
+
+	// 更新compute_reg表
+	var updateData model.ComputeReg
+	updateData.ComputeTaskID = data["id"].(int64)
+	updateData.Status = "waiting"
+	updateData.UpdateTime = time.Now()
+	_, err = g.Model("compute_reg").Where("compute_task_id = ?", updateData.ComputeTaskID).Data(updateData).OmitEmpty().Update()
+	if err != nil {
+		g.Log().Error(ctx, err)
+	}
+	// 写入compute_reg_log表
+	// 处理interfacedata
+	critiera_json, _ := json.Marshal(data["criteria"])
+	identifier_json, _ := json.Marshal(data["identifier"])
+	var insertLogData model.ComputeRegLog
+	insertLogData.ComputeTaskID = data["id"].(int64)
+	insertLogData.ServiceID = int64(data["serviceID"].(float64))
+	insertLogData.ComputeType = int(data["computeType"].(float64))
+	insertLogData.Criteria = string(critiera_json)
+	insertLogData.Identifier = string(identifier_json)
+	insertLogData.ServiceOwnerID = 12
+	insertLogData.ProviderIDList = "1234"
+	insertLogData.Status = "waiting"
+	insertLogData.HandleList = gconv.String(data["handle_id"].(int64))
+	insertLogData.Time = time.Now()
+	_, err = g.Model("compute_reg_log").Data(insertLogData).Insert()
+	if err != nil {
+		g.Log().Error(ctx, err)
+	}
+
+	return
+}
+
+// 任务结束，更新compute_reg表，写入日志
+func (s *sCompute) UpdateComputeRegToDB(ctx context.Context, data g.Map) (err error) {
+	var (
+		updateData    model.ComputeReg
+		insertLogData model.ComputeRegLog
+	)
+	updateData.ComputeTaskID = data["id"].(int64)
+	updateData.Status = "finished"
+	updateData.UpdateTime = time.Now()
+	_, err = g.Model("compute_reg").Where("compute_task_id = ?", updateData.ComputeTaskID).Data(updateData).OmitEmpty().Update()
+	if err != nil {
+		g.Log().Error(ctx, err)
+	}
+
+	// 处理interfacedata
+	critiera_json, _ := json.Marshal(data["criteria"])
+	identifier_json, _ := json.Marshal(data["identifier"])
+
+	// 写入compute_reg_log表
+	insertLogData.ComputeTaskLogID = 0 // 自增id
+	insertLogData.ComputeTaskID = data["id"].(int64)
+	insertLogData.ServiceID = data["serviceID"].(int64)
+	insertLogData.ComputeType = int(data["computeType"].(float64))
+	insertLogData.Criteria = string(critiera_json)
+	insertLogData.Identifier = string(identifier_json)
+	insertLogData.ServiceOwnerID = 12
+	insertLogData.ProviderIDList = "1234"
+	insertLogData.Status = "finished"
+	insertLogData.HandleList = gconv.String(data["handle_id"].(int64))
+	insertLogData.Time = time.Now()
+	_, err = g.Model("compute_reg_log").Data(insertLogData).Insert()
+	if err != nil {
+		g.Log().Error(ctx, err)
 	}
 	return
 }

@@ -41,6 +41,21 @@ type TaskData struct {
 	SecureTableName string `json:"securetable_name"`
 }
 
+type TaskDataLog struct {
+	TaskLogID       int64  `json:"task_log_id"`
+	TaskID          int64  `json:"task_id"`
+	ServiceID       int64  `json:"service_id"`
+	ServiceName     string `json:"service_name"`
+	ServiceOwnerID  int64  `json:"service_owner_id"`
+	ProviderID      int64  `json:"provider_id"`
+	HandleID        int64  `json:"handle_id"`
+	HandleName      string `json:"handle_name"`
+	DBName          string `json:"db_name"`
+	TableName       string `json:"table_name"`
+	Status          string `json:"status"`
+	SecureTableName string `json:"securetable_name"`
+}
+
 type ProvideRawDataReq struct {
 	TaskID      int32    `json:"taskID"`
 	HandleID    int64    `json:"handleID"`

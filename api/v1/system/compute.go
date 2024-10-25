@@ -81,14 +81,25 @@ type ComputeTaskListRes struct {
 }
 
 type ComputeTask struct {
-	ComputeTaskID  int64     `json:"computeTaskID"`
-	ComputeType    int       `json:"computeType"`
-	ServiceID      int64     `json:"serviceID"`
-	HandleIDList   string    `json:"HandleIDList"`
-	QueryStartTime time.Time `json:"queryStartTime"`
-	QueryEndTime   time.Time `json:"queryEndTime"`
-	ProviderID     int64     `json:"providerID"`
+	ComputeTaskID    int64     `json:"computeTaskID"`
+	ComputeType      int       `json:"computeType"`
+	ServiceID        int64     `json:"serviceID"`
+	ProviderID       int64     `json:"providerID"`
+	Handle_List      string    `json:"HandleIDList"`
+	Status           string    `json:"status"`
+	Query_Start_Time time.Time `json:"queryStartTime"`
+	Query_End_Time   time.Time `json:"queryEndTime"`
 }
+
+// type ComputeTask struct {
+// 	ComputeTaskID  int64     `json:"computeTaskID"`
+// 	ComputeType    int       `json:"computeType"`
+// 	ServiceID      int64     `json:"serviceID"`
+// 	HandleIDList   string    `json:"HandleIDList"`
+// 	QueryStartTime time.Time `json:"queryStartTime"`
+// 	QueryEndTime   time.Time `json:"queryEndTime"`
+// 	ProviderID     int64     `json:"providerID"`
+// }
 
 type ResultReq struct {
 	g.Meta `path:"/compute/ShowResult" method:"get" tags:"计算" summary:"展示计算结果数据"`

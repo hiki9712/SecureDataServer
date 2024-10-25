@@ -32,7 +32,6 @@ database:
 
   default:
     link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
-<<<<<<< HEAD
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -42,8 +41,6 @@ database:
   
   biz_dms:
     link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
-=======
->>>>>>> 8e1efdfb15a83aa7dcd77ba488506e807241a3a4
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
