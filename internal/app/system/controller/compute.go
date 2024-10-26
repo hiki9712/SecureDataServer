@@ -116,9 +116,9 @@ func (c *computeController) GetResult(ctx context.Context, req *system.ComputeRe
 		websocket.SendWebSocketMessage(ctx, taskID, resultValue)
 	}
 
-	err = service.Compute().UpdateComputeRegToDB(ctx, data)
+	err = service.Compute().UpdateComputeRegToDB(ctx, taskID)
 	if err != nil {
-		return
+		g.Log().Warning(ctx, "compute Reg update failed:", err)
 	}
 
 	res.Status = "success"

@@ -59,8 +59,11 @@ func SendWebSocketMessage(ctx context.Context, taskID int64, resultValue string)
 	wsMutex.Lock()
 	defer wsMutex.Unlock()
 
+	// g.Log().Info(ctx, "111111111")
+
 	if ws, ok := wsConnections[0]; ok {
 		// 将 TaskID 和 resultValue 打包成 JSON 对象
+		g.Log().Info(ctx, "connection found")
 		message := map[string]interface{}{
 			"TaskID":      taskID,
 			"ResultValue": resultValue,
