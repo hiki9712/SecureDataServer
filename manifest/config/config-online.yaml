@@ -31,7 +31,7 @@ database:
     Path: "resource/log/sql"
 
   default:
-    link:   "mysql:root:Trust_525@tcp({LOCAL_IP}:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:Ww*123456@tcp({LOCAL_IP}:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -49,7 +49,7 @@ database:
     maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
 
   biz_dms:
-    link:   "mysql:root:Trust_525@tcp({LOCAL_IP}:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:Ww*123456@tcp({LOCAL_IP}:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
