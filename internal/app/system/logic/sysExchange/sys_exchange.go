@@ -197,7 +197,7 @@ func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map) (err error
 func (s *sSysExchange) Listhandle(ctx context.Context, data g.Map) (handleDataList []model.HandleList, err error) {
 	g.Log().Info(ctx, "listData:", data)
 	if data["user_type"].(string) == "owner" {
-		ownerhandleData, _ := g.Model("handle_reg").Fields("handle_id,service_id,service_name,provider_id").Order("update_time DESC").All()
+		ownerhandleData, _ := g.Model("handle_reg_log").Fields("handle_id,service_id,service_name,provider_id").Order("update_time DESC").All()
 		g.Log().Info(ctx, "ownerhandleData:", ownerhandleData)
 		for _, v := range ownerhandleData {
 			handleData := model.HandleList{
