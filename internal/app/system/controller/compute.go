@@ -109,8 +109,23 @@ func (c *computeController) GetResult(ctx context.Context, req *system.ComputeRe
 	}
 
 	if len(result_res.ComputeResult) > 0 {
-		resultValue := result_res.ComputeResult[0].Result
+
+		// 如果有多个计算结果，拼接成字符串发送给前端
+		resultValue := ""
+		for _, v := range result_res.ComputeResult {
+
+			identifier_name := v.Identifier.FieldName
+			identifier_value := v.Identifier.FieldValue[0].(string)
+			identifier := identifier_name + ":" + identifier_value + "\n"
+			result := v.Result
+
+			resultValue += identifier + " --> " + result + "\n"
+			//resultValue += v.Result + "\n"
+			// g.Log().Info(ctx, "compute result:", v)
+		}
 		g.Log().Info(ctx, "compute result:", resultValue)
+		// resultValue := result_res.ComputeResult[0].Result
+		// g.Log().Info(ctx, "compute result:", resultValue)
 
 		// 通过 WebSocket 发送消息
 		websocket.SendWebSocketMessage(ctx, taskID, resultValue)
