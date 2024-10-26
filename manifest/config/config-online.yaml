@@ -40,7 +40,7 @@ database:
     maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
 
   raw_sg:
-    link:   "mysql:root:Trust_525@tcp({LOCAL_IP}:3306)/raw_sg?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/raw_sg?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
