@@ -18,6 +18,12 @@ type ExchangeRes struct {
 	Message string `json:"message"`
 }
 
+type ListhandleReq struct {
+	g.Meta    `mime:"application/json" path:"/exchange/listHandle" tags:"数据交换" method:"post" summary:"获取数据请求方的处理列表"`
+	UserType   string `json:"user_type"`
+	OwnerID    int64  `json:"owner_id"`
+}
+
 type SendDataReq struct {
 	g.Meta    `mime:"application/json" path:"/exchange/sendData" tags:"数据交换" method:"post" summary:"数据提供方发送业务数据"`
 	TableList []model.TaskData `json:"tableList"`
@@ -28,6 +34,13 @@ type SendDataRes struct {
 	Status  string `json:"status"`
 	TaskID  int64  `json:"taskID"`
 	Message string `json:"message"`
+}
+
+type HandleListRes struct {
+	g.Meta
+	Status  string                  `json:"status"`
+	Message string                  `json:"message"`
+	Items   []model.HandleList `json:"items"`
 }
 
 type tableDetail struct {

@@ -118,3 +118,10 @@ type NegotiationList struct {
 	DBName      string `json:"db_name"`
 	Status      string `json:"status"`
 }
+
+type HandleList struct {
+	HandleID int64     `json:"handle_id"`
+	ServiceID   int64  `json:"service_id"`
+	ServiceName string `json:"service_name"`
+	ProviderID  int64  `json:"provider_id"`
+}

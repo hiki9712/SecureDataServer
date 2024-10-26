@@ -41,6 +41,20 @@ func (c *exchangeController) SendExchangeRequest(ctx context.Context, req *syste
 	return
 }
 
+func (c *exchangeController) HandleList(ctx context.Context, req *system.ListhandleReq) (res *system.HandleListRes, err error) {
+	data, err := service.SysExchange().ResolveReq(ctx, req)
+	if err != nil {
+		return
+	}
+	dataList, err := service.SysExchange().Listhandle(ctx, data)
+	res = &system.HandleListRes{
+		Status:  "success",
+		Message: "",
+		Items:   dataList,
+	}
+	return
+}
+
 func (c *exchangeController) SendData(ctx context.Context, req *system.SendDataReq) (res *system.SendDataRes, err error) {
 	res = &system.SendDataRes{
 		Status:  "fail",

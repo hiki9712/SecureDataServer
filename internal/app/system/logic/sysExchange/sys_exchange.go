@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/bwmarrin/snowflake"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
@@ -189,5 +190,24 @@ func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map) (err error
 	responseString := response.ReadAllString()
 	g.Log().Info(ctx, "response:", responseString)
 	//TODO task表状态升级为running
+	return
+}
+
+// 查看handle列表
+func (s *sSysExchange) Listhandle(ctx context.Context, data g.Map) (handleDataList []model.HandleList, err error) {
+	g.Log().Info(ctx, "listData:", data)
+	if data["user_type"].(string) == "owner" {
+		ownerhandleData, _ := g.Model("handle_reg").Fields("handle_id,service_id,service_name,provider_id").Order("update_time DESC").All()
+		g.Log().Info(ctx, "ownerhandleData:", ownerhandleData)
+		for _, v := range ownerhandleData {
+			handleData := model.HandleList{
+				ServiceID:   v["service_id"].Int64(),
+				HandleID:   v["handle_id"].Int64(),
+				ProviderID: v["provider_id"].Int64(),
+				ServiceName: fmt.Sprintf("%v", v["service_name"]),
+			}
+			handleDataList = append(handleDataList, handleData)
+		}
+	}
 	return
 }
