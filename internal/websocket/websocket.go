@@ -17,6 +17,7 @@ var (
 
 // WebSocket 处理函数
 func HandleWebSocket(r *ghttp.Request) {
+	g.Log().Info(r.Context(), "WebSocket connection established")
 	ws, err := r.WebSocket()
 	if err != nil {
 		g.Log().Error(r.Context(), "WebSocket connection failed:", err)

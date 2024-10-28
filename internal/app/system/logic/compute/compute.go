@@ -32,7 +32,7 @@ func (s *sCompute) ListCompute(ctx context.Context, data g.Map) (computeData []s
 		if err != nil {
 			return nil, err
 		}
-		g.Log().Info(ctx, "ownerData:", computeData)
+		// g.Log().Info(ctx, "ownerData:", computeData)
 	}
 	return
 }
