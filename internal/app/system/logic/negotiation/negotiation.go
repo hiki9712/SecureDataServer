@@ -438,6 +438,9 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
 		// 构建 SQL 语句
 		sql := fmt.Sprintf("CREATE TABLE IF NOT EXISTS `%s` (", secureTableInfo["securetable_name"])
 		for _, tableField := range tableFieldList {
+			// 根据最新需求，所有fieldType都改为varchar(255)
+			tableField["fieldType"] = "varchar(255)"
+
 			sql += fmt.Sprintf("`%s` %s,", tableField["fieldName"], tableField["fieldType"])
 			if tableField["isSecret"].(string) == "True" {
 				sql += fmt.Sprintf("`%s` %s,", tableField["fieldNameNew"], tableField["fieldType"])

@@ -153,4 +153,4 @@ requestorAddress:
 uploadAddress:
   username: "root"
   password: "BCCbcc123"
-  addr: "192.168.10.56"
+  addr: "192.168.10.56:22"
