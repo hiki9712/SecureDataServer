@@ -39,6 +39,8 @@ type TaskData struct {
 	TableName       string `json:"table_name"`
 	Status          string `json:"status"`
 	SecureTableName string `json:"securetable_name"`
+	Format	string	`json:"format"`
+	Protocol int	`json:"protocol"`
 }
 
 type TaskDataLog struct {

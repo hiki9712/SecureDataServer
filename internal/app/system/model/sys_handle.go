@@ -16,6 +16,12 @@ type HandleField struct {
 	GarbleCoverType   int               `json:"garbleCoverType"`
 	GarbleSaveField   []GarbleSaveField `json:"garbleSaveField"`
 	GarbleAlgorithm   string            `json:"garbleAlgorithm"`
+	OriginTableName	string	`json:"originTableName"`	 //2025.2.24更新
+	OriginFieldName	[]string	`json:"originFieldName"`
+	DesenTableName	string	`json:"desenTableName"`
+	DesenFieldName	[]string	`json:"desenFieldName"`
+	Format	string	`json:"format"`
+	Protocol	int	`json:"protocol"`
 }
 
 type FieldContent struct {
