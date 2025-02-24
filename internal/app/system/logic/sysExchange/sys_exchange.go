@@ -75,6 +75,9 @@ func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (m
 			insertData.TableName = negotiationDetail.ProviderTable
 			insertData.SecureTableName = negotiationDetail.SecureTableName
 			insertData.HandleID = int64(data["handleID"].(float64))
+			insertData.HandleName = data["handleName"].(string)
+			insertData.Format = data["format"].(string)
+			insertData.Protocol = int(data["protocol"].(float64))
 			providerIDString := gconv.String(negotiationDetail.ProviderID)
 			if _, exists := postDataList[providerIDString]; exists {
 				postDataList[providerIDString] = append(postDataList[providerIDString], insertData)
@@ -202,8 +205,8 @@ func (s *sSysExchange) Listhandle(ctx context.Context, data g.Map) (handleDataLi
 		for _, v := range ownerhandleData {
 			handleData := model.HandleList{
 				ServiceID:   v["service_id"].Int64(),
-				HandleID:   v["handle_id"].Int64(),
-				ProviderID: v["provider_id"].Int64(),
+				HandleID:    v["handle_id"].Int64(),
+				ProviderID:  v["provider_id"].Int64(),
 				ServiceName: fmt.Sprintf("%v", v["service_name"]),
 			}
 			handleDataList = append(handleDataList, handleData)

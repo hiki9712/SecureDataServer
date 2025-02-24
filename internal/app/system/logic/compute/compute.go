@@ -138,6 +138,7 @@ func (s *sCompute) SendReqByComputeType(ctx context.Context, data g.Map) (res in
 		postData.Criteria.FieldName = data["criteria"].(map[string]interface{})["fieldName"].(string)
 		//postData.Criteria.FieldValue = "2024-07-01,2024-09-01"
 		postData.Criteria.FieldValue = data["criteria"].(map[string]interface{})["fieldValue"].(string)
+		postData.HandleName = data["handleName"].(string)
 		g.Log().Info(ctx, "postData", postData)
 		client := g.Client()
 		baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()

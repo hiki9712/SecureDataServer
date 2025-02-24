@@ -14,6 +14,7 @@ type ComputeSendReq struct {
 	HandleID    int64          `json:"handleID"`
 	Criteria    CriteriaType   `json:"criteria"`
 	Identifier  IdentifierType `json:"identifier"`
+	HandleName  string         `json:"handleName"`
 }
 
 type AssignPowerConsumptionTask struct {
@@ -21,6 +22,7 @@ type AssignPowerConsumptionTask struct {
 	ComputeType int          `json:"compute_type"`
 	HandleID    int64        `json:"handle_id"`
 	Criteria    CriteriaType `json:"criteria"`
+	HandleName  string       `json:"handle_name"`
 }
 
 type ProviderIdentifier struct {
