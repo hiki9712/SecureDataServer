@@ -81,7 +81,6 @@ func (c *registerController) NegotiationToPro(ctx context.Context, req *system.R
 	return
 }
 
-
 func (c *registerController) NegotiationAgree(ctx context.Context, req *system.RegisterNegotiationAgreeReq) (res *system.RegisterNegotiationAgreeRes, err error) {
 	res = &system.RegisterNegotiationAgreeRes{
 		Status:  "fail",
@@ -117,7 +116,6 @@ func (c *registerController) NegotiationAgreeToReq(ctx context.Context, req *sys
 	res.Status = "success"
 	return
 }
-
 
 func (c *registerController) NegotiationList(ctx context.Context, req *system.NegotiationListReq) (res *system.NegotiationListRes, err error) {
 	data, err := service.Negotiation().ResolveReq(ctx, req)

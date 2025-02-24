@@ -6,9 +6,12 @@ import (
 )
 
 type ExchangeReq struct {
-	g.Meta    `mime:"application/json" path:"/exchange/sendExchangeRequest" tags:"数据交换" method:"post" summary:"前端向数据请求方发送数据交换请求"`
-	ServiceID int64 `json:"serviceID"`
-	HandleID  int64 `json:"handleID"`
+	g.Meta     `mime:"application/json" path:"/exchange/sendExchangeRequest" tags:"数据交换" method:"post" summary:"前端向数据请求方发送数据交换请求"`
+	ServiceID  int64  `json:"serviceID"`
+	HandleID   int64  `json:"handleID"`
+	HandleName string `json:"handleName"`
+	Format     string `json:"format"`
+	Protocol   int    `json:"protocol"`
 }
 
 type ExchangeRes struct {
@@ -19,9 +22,9 @@ type ExchangeRes struct {
 }
 
 type ListhandleReq struct {
-	g.Meta    `mime:"application/json" path:"/exchange/listHandle" tags:"数据交换" method:"post" summary:"获取数据请求方的处理列表"`
-	UserType   string `json:"user_type"`
-	OwnerID    int64  `json:"owner_id"`
+	g.Meta   `mime:"application/json" path:"/exchange/listHandle" tags:"数据交换" method:"post" summary:"获取数据请求方的处理列表"`
+	UserType string `json:"user_type"`
+	OwnerID  int64  `json:"owner_id"`
 }
 
 type SendDataReq struct {
@@ -38,8 +41,8 @@ type SendDataRes struct {
 
 type HandleListRes struct {
 	g.Meta
-	Status  string                  `json:"status"`
-	Message string                  `json:"message"`
+	Status  string             `json:"status"`
+	Message string             `json:"message"`
 	Items   []model.HandleList `json:"items"`
 }
 

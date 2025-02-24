@@ -16,12 +16,12 @@ type HandleField struct {
 	GarbleCoverType   int               `json:"garbleCoverType"`
 	GarbleSaveField   []GarbleSaveField `json:"garbleSaveField"`
 	GarbleAlgorithm   string            `json:"garbleAlgorithm"`
-	OriginTableName	string	`json:"originTableName"`	 //2025.2.24更新
-	OriginFieldName	[]string	`json:"originFieldName"`
-	DesenTableName	string	`json:"desenTableName"`
-	DesenFieldName	[]string	`json:"desenFieldName"`
-	Format	string	`json:"format"`
-	Protocol	int	`json:"protocol"`
+	OriginTableName   string            `json:"originTableName"` //2025.2.24更新
+	OriginFieldName   []string          `json:"originFieldName"`
+	DesenTableName    string            `json:"desenTableName"`
+	DesenFieldName    []string          `json:"desenFieldName"`
+	Format            string            `json:"format"`
+	Protocol          int               `json:"protocol"`
 }
 
 type FieldContent struct {
@@ -69,7 +69,6 @@ type AtomHandleRegLog struct {
 	Remark          string        `json:"remark"`
 }
 
-
 type Negotiation struct {
 	NegotiationID    int64     `json:"negotiation_id"`
 	ServiceID        int64     `json:"service_id"`
@@ -115,18 +114,17 @@ type NegotiationLog struct {
 	Remark           string    `json:"remark"`
 }
 
-
 type NegotiationList struct {
-	NegotiationID int64     `json:"negotiation_id"`
-	ServiceID   int64  `json:"service_id"`
-	ServiceName string `json:"service_name"`
-	TableName   string `json:"table_name"`
-	DBName      string `json:"db_name"`
-	Status      string `json:"status"`
+	NegotiationID int64  `json:"negotiation_id"`
+	ServiceID     int64  `json:"service_id"`
+	ServiceName   string `json:"service_name"`
+	TableName     string `json:"table_name"`
+	DBName        string `json:"db_name"`
+	Status        string `json:"status"`
 }
 
 type HandleList struct {
-	HandleID int64     `json:"handle_id"`
+	HandleID    int64  `json:"handle_id"`
 	ServiceID   int64  `json:"service_id"`
 	ServiceName string `json:"service_name"`
 	ProviderID  int64  `json:"provider_id"`

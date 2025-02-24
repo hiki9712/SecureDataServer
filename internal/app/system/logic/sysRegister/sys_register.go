@@ -115,6 +115,7 @@ func (s *sSysRegister) StoreToDB(ctx context.Context, data g.Map) (err error) {
 	insertData.ProviderID = int64(data["providerID"].(float64))
 	insertData.KeyValueCount = int(data["keyValueCount"].(float64))
 	insertData.KeyValueContent = data["keyValueContent"].([]interface{})
+
 	insertData.DelFlag = 0
 	//insertData.CreateBy TODO
 	insertData.CreateTime = time.Now()
