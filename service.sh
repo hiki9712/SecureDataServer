@@ -9,10 +9,9 @@ copy_config_and_start() {
 
     # 根据参数决定复制哪个配置文件
     if [ "$2" == "online" ]; then
-        echo "haha"
         cp "./manifest/config/config-online.yaml" "$config_file_path"
         # 替换 config.yaml 文件中的 {LOCAL_IP} 占位符为实际的 IP 地址
-        sed -i "s/{LOCAL_IP}/$ip/g" "$config_file_path"
+        #sed -i "s/{LOCAL_IP}/$ip/g" "$config_file_path"
     else
         cp "./manifest/config/config-offline.yaml" "$config_file_path"
     fi

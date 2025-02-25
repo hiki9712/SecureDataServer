@@ -182,7 +182,7 @@ func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map) (err error
 		tableDetail.SecureTableName = table.(map[string]interface{})["securetable_name"].(string)
 	}
 	client := g.Client()
-	baseCfg := g.Cfg().MustGet(ctx, "baseApi.default").Map()
+	baseCfg := g.Cfg().MustGet(ctx, "baseApi.exchange").Map()
 	tmpData := gconv.String(reqData) //信工所要转成字符串才能接收，不然格式不是json，这是为什么
 	response, resErr := client.Post(ctx, baseCfg["address"].(string)+"/data/provideRawData", tmpData)
 	g.Log().Info(ctx, "reqData:", tmpData)
