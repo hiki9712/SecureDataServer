@@ -154,6 +154,15 @@ requestorAddress:
   12:
     address: 127.0.0.1:8808
 
+#用户地址
+userAddress:
+  1234:
+    address: 127.0.0.1:8809
+  123:
+    address: 127.0.0.1:8809
+  12:
+    address: 127.0.0.1:8808
+
 #上传地址
 uploadAddress:
   username: "root"

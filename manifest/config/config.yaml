@@ -1,5 +1,5 @@
 server:
-  address:     "0.0.0.0:8808"
+  address:     "0.0.0.0:8809"
   serverRoot: "resource/public"
   dumpRouterMap: false
   routeOverWrite: true
@@ -31,7 +31,16 @@ database:
     Path: "resource/log/sql"
 
   default:
-    link:   "mysql:root:123456@tcp(127.0.0.1:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
+    debug:  true
+    charset: "utf8mb4" #数据库编码
+    dryRun: false #空跑
+    maxIdle: 10 #连接池最大闲置的连接数
+    maxOpen: 10 #连接池最大打开的连接数
+    maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
+
+  biz_dms:
+    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -41,15 +50,6 @@ database:
 
   raw_sg:
     link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/raw_sg?charset=utf8mb4&parseTime=true&loc=Local"
-    debug:  true
-    charset: "utf8mb4" #数据库编码
-    dryRun: false #空跑
-    maxIdle: 10 #连接池最大闲置的连接数
-    maxOpen: 10 #连接池最大打开的连接数
-    maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
-
-  biz_dms:
-    link:   "mysql:root:123456@tcp(127.0.0.1:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -82,7 +82,7 @@ gfToken:
 redis:
   # 单实例配置
   default:
-    address: 127.0.0.1:6379
+    address: 47.94.19.196:6379
     db: 1
     idleTimeout: "60s" #连接最大空闲时间，使用时间字符串例如30s/1m/1d
     maxConnLifetime: "90s" #连接最长存活时间，使用时间字符串例如30s/1m/1d
@@ -121,17 +121,12 @@ gfcli:
 baseApi:
   #线下单实例配置
   default:
-    address: 10.26.70.18:10888
+    address: 123.59.0.99:80
     path: "/api/v1/system"
     retry: 3
     waitTimeout: "60s" #等待连接池连接的超时时间，使用时间字符串例如30s/1m/1d
     maxActive: 100
-  exchange:
-    address: 10.26.70.18:80
-    path: "/api/v1/system"
-    retry: 3
-    waitTimeout: "60s" #等待连接池连接的超时时间，使用时间字符串例如30s/1m/1d
-    maxActive: 100
+
 kafka:
   brokers:
     - "192.168.10.56:9092"
@@ -154,8 +149,18 @@ requestorAddress:
   12:
     address: 127.0.0.1:8808
 
+#用户地址
+userAddress:
+  1234:
+    address: 127.0.0.1:8809
+  123:
+    address: 127.0.0.1:8809
+  12:
+    address: 127.0.0.1:8808
+
+
 #上传地址
 uploadAddress:
   username: "root"
-  password: "ysjsv587!"
-  addr: "10.26.70.18:22"
+  password: "Welcome123$%^"
+  addr: "123.59.0.99:22333"

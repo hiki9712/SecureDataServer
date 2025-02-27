@@ -3,6 +3,7 @@ package negotiation
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -130,7 +131,7 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 	postData := data
 	postData["serviceID"] = serviceID // 发送协商信息时，将 serviceID 也发送过去
 	// 获取提供者的配置并发送 POST 请求
-	providerCfg := g.Cfg().MustGet(ctx, "providerAddress."+strconv.FormatInt(providerID, 10)).Map()
+	providerCfg := g.Cfg().MustGet(ctx, "userAddress."+strconv.FormatInt(providerID, 10)).Map()
 	g.Log().Info(ctx, "providerCfg:", providerCfg["address"])
 	g.Log().Info(ctx, "postData:", postData)
 	response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/handle/negotiationToPro", postData)
@@ -146,24 +147,6 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 
 // 提供方处理接收到的协商
 func (s *sNegotiation) SendNegotiationToProvider(ctx context.Context, data g.Map) (serviceID int64, err error) {
-	/*
-		serviceNum, err := g.Model("negotiation_pro").Count()
-		g.Log().Info(ctx, "negotiation_pro:ServiceNum:", serviceNum)
-		negotiationData := &model.Negotiation{}
-		negotiationData.ServiceID = int64(serviceNum + 1)
-		negotiationData.ServiceName = data["serviceName"].(string)
-		negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
-		negotiationData.ProviderID = int64(data["providerID"].(float64))
-		negotiationData.ProviderTable = data["tableName"].(string)
-		negotiationData.ProviderDB = data["databaseName"].(string)
-		negotiationData.SecureTableName = "secure_" + data["tableName"].(string)
-		negotiationData.Status = consts.NegotiationStart
-		negotiationData.DelFlag = 0
-		negotiationData.CreateTime = time.Now()
-		negotiationData.UpdateTime = time.Now()
-		_, err = g.Model("negotiation_pro").Insert(negotiationData)
-		return negotiationData.ServiceID, err
-	*/
 	var negotiationData *model.Negotiation
 	var negotiationLogData *model.NegotiationLog
 	g.Log().Info(ctx, "data:", data)
@@ -182,12 +165,11 @@ func (s *sNegotiation) SendNegotiationToProvider(ctx context.Context, data g.Map
 		// 处理错误
 		fmt.Println("Error parsing JSON:", err)
 	}
-
+	if len(fields) == 0 {
+		return -1, errors.New("数据库列表为空！")
+	}
 	// 遍历 fieldContent 提取 databaseName 和 tableName
 	for _, field := range fields {
-
-		//fieldContent := data["fieldContent"].([]interface{})
-		//for _, field := range fieldContent {
 		fieldMap := field.(map[string]interface{})
 		databaseName := fieldMap["databaseName"].(string)
 		tableName := fieldMap["tableName"].(string)
@@ -279,7 +261,7 @@ func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.M
 	postData := data
 	postData["negotiationID"] = negotiationID // 发送协商信息时，将 negotiationID 也发送过去
 	// 获取需求方的配置并发送 POST 请求
-	requestorCfg := g.Cfg().MustGet(ctx, "requestorAddress."+strconv.FormatInt(requestorID, 10)).Map()
+	requestorCfg := g.Cfg().MustGet(ctx, "userAddress."+strconv.FormatInt(requestorID, 10)).Map()
 	g.Log().Info(ctx, "postData:", postData)
 	response, resErr := client.Post(ctx, requestorCfg["address"].(string)+"/api/v1/system/handle/negotiationAgreeToReq", postData)
 	if resErr != nil {

@@ -97,7 +97,7 @@ func (s *sSysExchange) StoreExchangeTaskToDB(ctx context.Context, data g.Map) (m
 			//}
 			//postData.HandleID = int64(data["handleID"].(float64))
 			g.Log().Info(ctx, "postData:", postData)
-			providerCfg := g.Cfg().MustGet(ctx, "providerAddress."+providerID).Map()
+			providerCfg := g.Cfg().MustGet(ctx, "userAddress."+providerID).Map()
 			response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/exchange/sendData", postData)
 			if resErr != nil {
 				err = resErr
