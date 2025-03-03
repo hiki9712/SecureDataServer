@@ -52,7 +52,7 @@ func (c *registerController) Negotiation(ctx context.Context, req *system.Regist
 	if err != nil {
 		return
 	}
-	g.Log().Info(ctx, "negotiation success", data)
+	g.Log().Info(ctx, "negotiation data:", data)
 	serviceID, err := service.Negotiation().SendNegotiationRequest(ctx, data)
 	if err != nil {
 		return

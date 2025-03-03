@@ -31,7 +31,7 @@ database:
     Path: "resource/log/sql"
 
   default:
-    link:   "mysql:root:123456@tcp(127.0.0.1:3306)/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:123456@tcp({MYSQL_HOST}:{MYSQL_PORT})/biz_service?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -40,7 +40,7 @@ database:
     maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
 
   raw_sg:
-    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/raw_sg?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:123456@tcp({MYSQL_HOST}:{MYSQL_PORT})/raw_sg?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -49,7 +49,7 @@ database:
     maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
 
   biz_dms:
-    link:   "mysql:root:123456@tcp(127.0.0.1:3306)/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:123456@tcp({MYSQL_HOST}:{MYSQL_PORT})/biz_dms?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -58,7 +58,7 @@ database:
     maxLifetime: "30s" #(单位秒)连接对象可重复使用的时间长度
 
   raw_olist:
-    link:   "mysql:root:Trust_525@tcp(47.94.19.196:3306)/raw_olist?charset=utf8mb4&parseTime=true&loc=Local"
+    link:   "mysql:root:123456@tcp({MYSQL_HOST}:{MYSQL_PORT})/raw_olist?charset=utf8mb4&parseTime=true&loc=Local"
     debug:  true
     charset: "utf8mb4" #数据库编码
     dryRun: false #空跑
@@ -82,7 +82,7 @@ gfToken:
 redis:
   # 单实例配置
   default:
-    address: 127.0.0.1:6379
+    address: {REDIS_HOST}:{REDIS_PORT}
     db: 1
     idleTimeout: "60s" #连接最大空闲时间，使用时间字符串例如30s/1m/1d
     maxConnLifetime: "90s" #连接最长存活时间，使用时间字符串例如30s/1m/1d
@@ -121,17 +121,18 @@ gfcli:
 baseApi:
   #线下单实例配置
   default:
-    address: 10.26.70.18:10888
+    address: {DEFAULT}
     path: "/api/v1/system"
     retry: 3
     waitTimeout: "60s" #等待连接池连接的超时时间，使用时间字符串例如30s/1m/1d
     maxActive: 100
   exchange:
-    address: 10.26.70.18:80
+    address: {EXCHANGE}
     path: "/api/v1/system"
     retry: 3
     waitTimeout: "60s" #等待连接池连接的超时时间，使用时间字符串例如30s/1m/1d
     maxActive: 100
+
 kafka:
   brokers:
     - "192.168.10.56:9092"
@@ -157,11 +158,11 @@ requestorAddress:
 #用户地址
 userAddress:
   1234:
-    address: 127.0.0.1:8809
+    address: {1234_ADDR}
   123:
-    address: 127.0.0.1:8809
+    address: {123_ADDR}
   12:
-    address: 127.0.0.1:8808
+    address: {12_ADDR}
 
 #上传地址
 uploadAddress:

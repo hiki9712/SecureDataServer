@@ -11,7 +11,10 @@ copy_config_and_start() {
     if [ "$2" == "online" ]; then
         cp "./manifest/config/config-online.yaml" "$config_file_path"
         # 替换 config.yaml 文件中的 {LOCAL_IP} 占位符为实际的 IP 地址
-        #sed -i "s/{LOCAL_IP}/$ip/g" "$config_file_path"
+        sed -i "s/{MYSQL_HOST}/$MYSQL_HOST/g" "$config_file_path"
+        sed -i "s/{MYSQL_PORT}/$MYSQL_PORT/g" "$config_file_path"
+        sed -i "s/{REDIS_HOST}/$REDIS_HOST/g" "$config_file_path"
+        sed -i "s/{REDIS_PORT}/$REDIS_PORT/g" "$config_file_path"
     else
         cp "./manifest/config/config-offline.yaml" "$config_file_path"
     fi

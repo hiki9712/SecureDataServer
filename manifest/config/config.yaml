@@ -1,5 +1,5 @@
 server:
-  address:     "0.0.0.0:8809"
+  address:     "0.0.0.0:8808"
   serverRoot: "resource/public"
   dumpRouterMap: false
   routeOverWrite: true
@@ -157,7 +157,6 @@ userAddress:
     address: 127.0.0.1:8809
   12:
     address: 127.0.0.1:8808
-
 
 #上传地址
 uploadAddress:

@@ -21,20 +21,21 @@ type RegisterListReq struct {
 }
 
 type RegisterNegotiationReq struct {
-	g.Meta         `path:"/handle/negotiation" tags:"handle注册" method:"post" summary:"数据协商"`
-	ServiceName    string `json:"serviceName"`
-	ProviderID     int64  `json:"providerID"`
-	ServiceOwnerID int64  `json:"serviceOwnerID"`
-	FieldContent   interface{}          `json:"fieldContent"`
+	g.Meta      `path:"/handle/negotiation" tags:"handle注册" method:"post" summary:"数据协商"`
+	ServiceName string `json:"serviceName"`
+	//ProviderID     int64       `json:"providerID"`
+	ServiceOwnerID int64                  `json:"serviceOwnerID"`
+	ProviderList   map[string]interface{} `json:"providerList"`
+	//FieldContent   interface{} `json:"fieldContent"`
 }
 
 type RegisterNegotiationToProReq struct {
 	g.Meta         `path:"/handle/negotiationToPro" tags:"handle注册" method:"post" summary:"数据协商传给提供方"`
-	ServiceName    string `json:"serviceName"`
-	ProviderID     int64  `json:"providerID"`
-	ServiceID     int64  `json:"serviceID"`
-	ServiceOwnerID int64  `json:"serviceOwnerID"`
-	FieldContent   interface{}          `json:"fieldContent"`
+	ServiceName    string      `json:"serviceName"`
+	ProviderID     int64       `json:"providerID"`
+	ServiceID      int64       `json:"serviceID"`
+	ServiceOwnerID int64       `json:"serviceOwnerID"`
+	FieldContent   interface{} `json:"fieldContent"`
 }
 
 type RegisterNegotiationRes struct {

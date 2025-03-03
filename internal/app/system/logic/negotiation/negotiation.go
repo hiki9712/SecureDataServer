@@ -42,88 +42,46 @@ func (s *sNegotiation) ResolveReq(ctx context.Context, req interface{}) (data g.
 }
 
 func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (serviceID int64, err error) {
-	/*
-		serviceNum, err := g.Model("negotiation").Count()
-		g.Log().Info(ctx, "negotiation:ServiceNum:", serviceNum)
-		negotiationData := &model.Negotiation{}
-		negotiationData.ServiceID = int64(serviceNum + 1)
-		negotiationData.ServiceName = data["serviceName"].(string)
-		negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
-		negotiationData.ProviderID = int64(data["providerID"].(float64))
-		//negotiationData.ProviderTable = data["tableName"].(string)
-		//negotiationData.ProviderDB = data["databaseName"].(string)
-		//negotiationData.SecureTableName = "secure_" + data["tableName"].(string)
-		negotiationData.Status = consts.NegotiationStart
-		negotiationData.DelFlag = 0
-		negotiationData.CreateTime = time.Now()
-		negotiationData.UpdateTime = time.Now()
-		_, err = g.Model("negotiation").Insert(negotiationData)
-	*/
-	// var negotiationData *model.Negotiation
-	// var negotiationLogData *model.NegotiationLog
-
-	g.Log().Info(ctx, "data:", data)
-	// 提取单条记录
 	serviceName := data["serviceName"].(string)
-	providerID := int64(data["providerID"].(float64))
+	//providerID := int64(data["providerID"].(float64))
 
 	// 获取当前服务编号，使用相同的 serviceNum
 	serviceID = libUtils.GenUniqId(ctx)
 	g.Log().Info(ctx, "negotiation:ServiceID:", serviceID)
 
-	// 假设 fieldContent 是一个包含多条记录的数组
-	fieldContent := data["fieldContent"].([]interface{})
+	// 假设 providerList 是一个包含多条记录的数组
+	providerList := data["providerList"].(map[string]interface{})
 
-	// 遍历 fieldContent 提取 databaseName 和 tableName
-	for _, field := range fieldContent {
-		fieldMap := field.(map[string]interface{})
-		databaseName := fieldMap["databaseName"].(string)
-		tableName := fieldMap["tableName"].(string)
+	// 遍历 providerList 提取 provider 要求
+	for providerID, fieldList := range providerList {
+		fieldContent := fieldList.([]interface{})
+		g.Log().Info(ctx, "fieldContent:", fieldContent)
+		for _, fieldContentItem := range fieldContent {
+			// 创建negotiationID
+			negotiationID := libUtils.GenUniqId(ctx)
+			g.Log().Info(ctx, "negotiation:NegotiationID:", negotiationID)
+			fieldContentItem.(map[string]interface{})["negotiationID"] = negotiationID
 
-		// 创建negotiationID
-		negotiationID := libUtils.GenUniqId(ctx)
-		g.Log().Info(ctx, "negotiation:NegotiationID:", negotiationID)
-		fieldMap["negotiationID"] = negotiationID
+			// 创建新的 Negotiation 实例
+			negotiationData := &model.Negotiation{}
+			negotiationData.ServiceID = serviceID         // 使用相同的 serviceID
+			negotiationData.NegotiationID = negotiationID // 使用新的 negotiationID
+			negotiationData.ServiceName = serviceName
+			negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
+			negotiationData.ProviderID, _ = strconv.ParseInt(providerID, 10, 64)
+			negotiationData.ProviderTable = fieldContentItem.(map[string]interface{})["tableName"].(string) // 记录当前表名
+			negotiationData.ProviderDB = fieldContentItem.(map[string]interface{})["databaseName"].(string) // 记录当前数据库名
+			negotiationData.Status = consts.NegotiationStart
+			negotiationData.DelFlag = 0
+			negotiationData.CreateTime = time.Now()
+			negotiationData.UpdateTime = time.Now()
 
-		// 创建新的 Negotiation 实例
-		negotiationData := &model.Negotiation{}
-		negotiationData.ServiceID = serviceID         // 使用相同的 serviceID
-		negotiationData.NegotiationID = negotiationID // 使用新的 negotiationID
-		negotiationData.ServiceName = serviceName
-		negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
-		negotiationData.ProviderID = providerID
-		negotiationData.ProviderTable = tableName // 记录当前表名
-		negotiationData.ProviderDB = databaseName // 记录当前数据库名
-		negotiationData.Status = consts.NegotiationStart
-		negotiationData.DelFlag = 0
-		negotiationData.CreateTime = time.Now()
-		negotiationData.UpdateTime = time.Now()
-
-		// // 创建新的 NegotiationLog 实例
-		// negotiationLogData = &model.NegotiationLog{}
-		// negotiationLogData.NegotiationLogID = 0          // 自增ID
-		// negotiationLogData.ServiceID = serviceID         // 使用相同的 serviceID
-		// negotiationLogData.NegotiationID = negotiationID // 使用新的 negotiationID
-		// negotiationLogData.ServiceName = serviceName
-		// negotiationLogData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
-		// negotiationLogData.ProviderID = providerID
-		// negotiationLogData.ProviderTable = tableName // 记录当前表名
-		// negotiationLogData.ProviderDB = databaseName // 记录当前数据库名
-		// negotiationLogData.Status = consts.NegotiationStart
-		// negotiationLogData.DelFlag = 0
-		// negotiationLogData.CreateTime = time.Now()
-		// negotiationLogData.UpdateTime = time.Now()
-
-		// 插入到数据库
-		_, err = g.Model("negotiation").Insert(negotiationData)
-		if err != nil {
-			return 0, err // 如果插入失败，返回错误
+			// 插入到数据库
+			_, err = g.Model("negotiation").Insert(negotiationData)
+			if err != nil {
+				return 0, err // 如果插入失败，返回错误
+			}
 		}
-		// _, log_err := g.Model("negotiation_pro_log").Insert(negotiationLogData)
-		// if log_err != nil {
-		// 	return 0, log_err // 如果插入失败，返回错误
-		// }
-
 	}
 
 	// 发送协商信息给服务提供方
@@ -131,17 +89,18 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 	postData := data
 	postData["serviceID"] = serviceID // 发送协商信息时，将 serviceID 也发送过去
 	// 获取提供者的配置并发送 POST 请求
-	providerCfg := g.Cfg().MustGet(ctx, "userAddress."+strconv.FormatInt(providerID, 10)).Map()
-	g.Log().Info(ctx, "providerCfg:", providerCfg["address"])
-	g.Log().Info(ctx, "postData:", postData)
-	response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/handle/negotiationToPro", postData)
-	g.Log().Info(ctx, "postData:", postData)
-	if resErr != nil {
-		g.Log().Error(ctx, "发送协商信息失败:", resErr)
-		return 0, resErr // 返回错误
+	for providerID, _ := range providerList {
+		providerCfg := g.Cfg().MustGet(ctx, "userAddress."+providerID).Map()
+		g.Log().Info(ctx, "providerCfg:", providerCfg["address"])
+		g.Log().Info(ctx, "postData:", postData)
+		response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/handle/negotiationToPro", postData)
+		g.Log().Info(ctx, "postData:", postData)
+		if resErr != nil {
+			g.Log().Error(ctx, "发送协商信息失败:", resErr)
+			return 0, resErr // 返回错误
+		}
+		g.Log().Info(ctx, "协商信息发送成功:", response.ReadAllString())
 	}
-	// 在这里可以处理成功的响应，例如解析响应内容
-	g.Log().Info(ctx, "协商信息发送成功，响应:", response)
 	return serviceID, err
 }
 
