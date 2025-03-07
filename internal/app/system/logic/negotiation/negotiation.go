@@ -89,12 +89,15 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 	postData := data
 	postData["serviceID"] = serviceID // 发送协商信息时，将 serviceID 也发送过去
 	// 获取提供者的配置并发送 POST 请求
-	for providerID, _ := range providerList {
+	for providerID, provider := range providerList {
+		g.Log().Info(ctx, "provider:", provider)
+		postData["fieldContent"] = provider
+		postData["providerID"] = providerID
+		delete(postData, "providerList")
 		providerCfg := g.Cfg().MustGet(ctx, "userAddress."+providerID).Map()
 		g.Log().Info(ctx, "providerCfg:", providerCfg["address"])
 		g.Log().Info(ctx, "postData:", postData)
 		response, resErr := client.Post(ctx, providerCfg["address"].(string)+"/api/v1/system/handle/negotiationToPro", postData)
-		g.Log().Info(ctx, "postData:", postData)
 		if resErr != nil {
 			g.Log().Error(ctx, "发送协商信息失败:", resErr)
 			return 0, resErr // 返回错误

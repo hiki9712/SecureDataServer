@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  biz_service_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: biz_service_backend
+    ports:
+      - "8810:8808"
+    environment:
+      TZ: Asia/Shanghai
+      MY_HOST: 10.21.254.105
+      MYSQL_HOST: 10.21.254.105
+      MYSQL_PORT: 3308
+      REDIS_HOST: 10.21.254.105
+      REDIS_PORT: 6381
+      12_ADDR: 127.0.0.1:8808
+      123_ADDR: 127.0.0.1:8809
+      1234_ADDR: 127.0.0.1:8810
+      DEFAULT: 10.26.70.18:10888
+      EXCHANGE: 10.26.70.18:80
+    volumes:
+      - ./manifest/config/config-offline.yaml:/app/manifest/config/config-offline.yaml      # 挂载配置文件
+    command: ["sh","service.sh","startonline"]
+    depends_on:
+      - redis
+      - mysql
+  
+  redis:
+    image: redis:latest
+    restart: always
+#    volumes:
+#    - ./repos/redis/data:/data:rw    # 数据持久化
+    ports:
+      - "6381:6379"
+
+  mysql:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - mysql_data:/var/lib/mysql  # 数据持久化
+      - ./resource/data:/docker-entrypoint-initdb.d
+      - ./manifest/docker/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - "3309:3306"
+
+
+volumes:
+  mysql_data:
+
