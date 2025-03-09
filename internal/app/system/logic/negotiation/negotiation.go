@@ -50,37 +50,48 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 	g.Log().Info(ctx, "negotiation:ServiceID:", serviceID)
 
 	// 假设 providerList 是一个包含多条记录的数组
-	providerList := data["providerList"].(map[string]interface{})
+	fieldContent := data["fieldContent"].([]interface{})
+
+	type FieldContent struct {
+		DatabaseName string `json:"databaseName"`
+		TableName    string `json:"tableName"`
+		ProviderID   string `json:"providerID"`
+	}
+	var providerList = make(map[string][]FieldContent)
 
 	// 遍历 providerList 提取 provider 要求
-	for providerID, fieldList := range providerList {
-		fieldContent := fieldList.([]interface{})
-		g.Log().Info(ctx, "fieldContent:", fieldContent)
-		for _, fieldContentItem := range fieldContent {
-			// 创建negotiationID
-			negotiationID := libUtils.GenUniqId(ctx)
-			g.Log().Info(ctx, "negotiation:NegotiationID:", negotiationID)
-			fieldContentItem.(map[string]interface{})["negotiationID"] = negotiationID
+	for _, field := range fieldContent {
+		fieldDetail := field.(map[string]interface{})
+		g.Log().Info(ctx, "fieldDetail:", fieldDetail)
 
-			// 创建新的 Negotiation 实例
-			negotiationData := &model.Negotiation{}
-			negotiationData.ServiceID = serviceID         // 使用相同的 serviceID
-			negotiationData.NegotiationID = negotiationID // 使用新的 negotiationID
-			negotiationData.ServiceName = serviceName
-			negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
-			negotiationData.ProviderID, _ = strconv.ParseInt(providerID, 10, 64)
-			negotiationData.ProviderTable = fieldContentItem.(map[string]interface{})["tableName"].(string) // 记录当前表名
-			negotiationData.ProviderDB = fieldContentItem.(map[string]interface{})["databaseName"].(string) // 记录当前数据库名
-			negotiationData.Status = consts.NegotiationStart
-			negotiationData.DelFlag = 0
-			negotiationData.CreateTime = time.Now()
-			negotiationData.UpdateTime = time.Now()
+		// 创建negotiationID
+		negotiationID := libUtils.GenUniqId(ctx)
+		g.Log().Info(ctx, "negotiation:NegotiationID:", negotiationID)
+		//fieldContentItem.(map[string]interface{})["negotiationID"] = negotiationID
+		providerID, _ := strconv.ParseInt(fieldDetail["providerID"].(string), 10, 64)
+		dBAndTable := FieldContent{
+			DatabaseName: fieldDetail["databaseName"].(string),
+			TableName:    fieldDetail["tableName"].(string),
+		}
+		providerList[fieldDetail["providerID"].(string)] = append(providerList[fieldDetail["providerID"].(string)], dBAndTable)
+		// 创建新的 Negotiation 实例
+		negotiationData := &model.Negotiation{}
+		negotiationData.ServiceID = serviceID         // 使用相同的 serviceID
+		negotiationData.NegotiationID = negotiationID // 使用新的 negotiationID
+		negotiationData.ServiceName = serviceName
+		negotiationData.ServiceOwnerID = int64(data["serviceOwnerID"].(float64))
+		negotiationData.ProviderID = providerID
+		negotiationData.ProviderTable = fieldDetail["tableName"].(string) // 记录当前表名
+		negotiationData.ProviderDB = fieldDetail["databaseName"].(string) // 记录当前数据库名
+		negotiationData.Status = consts.NegotiationStart
+		negotiationData.DelFlag = 0
+		negotiationData.CreateTime = time.Now()
+		negotiationData.UpdateTime = time.Now()
 
-			// 插入到数据库
-			_, err = g.Model("negotiation").Insert(negotiationData)
-			if err != nil {
-				return 0, err // 如果插入失败，返回错误
-			}
+		// 插入到数据库
+		_, err = g.Model("negotiation").Insert(negotiationData)
+		if err != nil {
+			return 0, err // 如果插入失败，返回错误
 		}
 	}
 
