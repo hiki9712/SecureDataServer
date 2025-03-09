@@ -199,6 +199,7 @@ func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.M
 	requestorIDVar, _ := g.Model("negotiation_pro").Where("negotiation_id=?", negotiationID).Value("service_owner_id")
 	requestorID := requestorIDVar.Int64()
 	g.Log().Info(ctx, "data:", data)
+	postData := data
 
 	if Agree {
 		result, _ := g.Model("negotiation_pro").Where("negotiation_id=?", negotiationID).Fields("provider_db,provider_table").One()
@@ -220,18 +221,20 @@ func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.M
 			"securetable_field": rawField,
 			"securetable_name":  data["secureTableName"].(string),
 		}
+		postData["agree"] = true
+		postData["secureTableField"] = rawField
 		_, err = g.Model("negotiation_pro").Data(message).Where("negotiation_id = ?", negotiationID).Update()
 	} else {
 		message := g.Map{
 			"status":  consts.NegotiationReject,
 			"message": gconv.String(data["message"].(string)),
 		}
+		postData["agree"] = false
 		_, err = g.Model("negotiation_pro").Data(message).Where("negotiation_id = ?", negotiationID).Update()
 	}
 
 	// 发送建表要求给需求方
 	client := g.Client()
-	postData := data
 	postData["negotiationID"] = negotiationID // 发送协商信息时，将 negotiationID 也发送过去
 	// 获取需求方的配置并发送 POST 请求
 	requestorCfg := g.Cfg().MustGet(ctx, "userAddress."+strconv.FormatInt(requestorID, 10)).Map()
@@ -242,7 +245,7 @@ func (s *sNegotiation) SendNegotiationAgreeRequest(ctx context.Context, data g.M
 		return resErr // 返回错误
 	}
 	// 在这里可以处理成功的响应，例如解析响应内容
-	g.Log().Info(ctx, "建表要求发送成功，响应:", response)
+	g.Log().Info(ctx, "建表要求发送成功，响应:", response.ReadAllString())
 
 	return
 }
