@@ -408,8 +408,10 @@ func (s *sNegotiation) BuildMySQLDB(ctx context.Context, data g.Map) (err error)
 			}
 		}
 		g.Log().Info(ctx, "primaryKey:", PrimaryKey)
-		sql += fmt.Sprintf("PRIMARY KEY (`%s`)", strings.Join(PrimaryKey, "`,`"))
-		sql = strings.TrimRight(sql, ",")
+		if len(PrimaryKey) > 0 {
+			sql += fmt.Sprintf("PRIMARY KEY (`%s`)", strings.Join(PrimaryKey, "`,`"))
+			sql = strings.TrimRight(sql, ",")
+		}
 		sql += fmt.Sprintf(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;")
 		g.Log().Info(ctx, "sql:", sql)
 
