@@ -15,13 +15,14 @@ services:
       MYSQL_PORT: 3308
       REDIS_HOST: 192.168.2.225
       REDIS_PORT: 6381
-      USER_12_ADDR: 127.0.0.1:8808
-      USER_123_ADDR: 127.0.0.1:8809
-      USER_1234_ADDR: 127.0.0.1:8810
+      USER_12_ADDR: 192.168.2.225:8808
+      USER_123_ADDR: 192.168.2.225:8809
+      USER_1234_ADDR: 192.168.2.225:8810
       DEFAULT: 10.26.70.18:10888
       EXCHANGE: 10.26.70.18:80
+      USERID: 1234
     volumes:
-      - ./manifest/config/config-offline.yaml:/app/manifest/config/config-offline.yaml      # 挂载配置文件
+      - ./manifest/config/config-online.yaml:/app/manifest/config/config-online.yaml      # 挂载配置文件
     command: ["sh","service.sh","startonline"]
     depends_on:
       - redis3
@@ -40,13 +41,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=123456
     volumes:
-      - mysql_data3:/var/lib/mysql  # 数据持久化
       - ./resource/hosp_data:/docker-entrypoint-initdb.d
       - ./manifest/docker/my.cnf:/etc/mysql/conf.d/my.cnf
     ports:
-      - "3309:3306"
+      - "3308:3306"
 
-
-volumes:
-  mysql_data3:
 

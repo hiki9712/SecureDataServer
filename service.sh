@@ -19,6 +19,8 @@ copy_config_and_start() {
         sed -i "s/{USER_123_ADDR}/$USER_123_ADDR/g" "$config_file_path"
         sed -i "s/{USER_1234_ADDR}/$USER_1234_ADDR/g" "$config_file_path"
         sed -i "s/{DEFAULT}/$DEFAULT/g" "$config_file_path"
+        sed -i "s/{EXCHANGE}/$EXCHANGE/g" "$config_file_path"
+        sed -i "s/{USERID}/$USERID/g" "$config_file_path"
     else
         cp "./manifest/config/config-offline.yaml" "$config_file_path"
     fi

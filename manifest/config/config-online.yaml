@@ -158,11 +158,14 @@ requestorAddress:
 #用户地址
 userAddress:
   1234:
-    address: {1234_ADDR}
+    address: {USER_1234_ADDR}
   123:
-    address: {123_ADDR}
+    address: {USER_123_ADDR}
   12:
-    address: {12_ADDR}
+    address: {USER_12_ADDR}
+
+userInfo:
+  id: {USERID}
 
 #上传地址
 uploadAddress:

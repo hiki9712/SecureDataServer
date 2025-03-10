@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/tiger1103/gfast/v3/internal/app/system/model"
+	"github.com/tiger1103/gfast/v3/internal/app/system/service"
+	"github.com/tiger1103/gfast/v3/library/libUtils"
 	"strconv"
 	"strings"
 	"time"
@@ -13,9 +16,6 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/tiger1103/gfast/v3/internal/app/system/consts"
-	"github.com/tiger1103/gfast/v3/internal/app/system/model"
-	"github.com/tiger1103/gfast/v3/internal/app/system/service"
-	"github.com/tiger1103/gfast/v3/library/libUtils"
 )
 
 func init() {
@@ -43,8 +43,8 @@ func (s *sNegotiation) ResolveReq(ctx context.Context, req interface{}) (data g.
 
 func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (serviceID int64, err error) {
 	serviceName := data["serviceName"].(string)
-	//providerID := int64(data["providerID"].(float64))
-
+	userID := service.Context().GetLoginUser(ctx)
+	g.Log().Info(ctx, "adminID:", userID)
 	// 获取当前服务编号，使用相同的 serviceNum
 	serviceID = libUtils.GenUniqId(ctx)
 	g.Log().Info(ctx, "negotiation:ServiceID:", serviceID)
@@ -53,9 +53,10 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 	fieldContent := data["fieldContent"].([]interface{})
 
 	type FieldContent struct {
-		DatabaseName string `json:"databaseName"`
-		TableName    string `json:"tableName"`
-		ProviderID   string `json:"providerID"`
+		DatabaseName  string `json:"databaseName"`
+		TableName     string `json:"tableName"`
+		ProviderID    string `json:"providerID"`
+		NegotiationID int64  `json:"negotiationID"`
 	}
 	var providerList = make(map[string][]FieldContent)
 
@@ -70,8 +71,9 @@ func (s *sNegotiation) SendNegotiationRequest(ctx context.Context, data g.Map) (
 		//fieldContentItem.(map[string]interface{})["negotiationID"] = negotiationID
 		providerID, _ := strconv.ParseInt(fieldDetail["providerID"].(string), 10, 64)
 		dBAndTable := FieldContent{
-			DatabaseName: fieldDetail["databaseName"].(string),
-			TableName:    fieldDetail["tableName"].(string),
+			DatabaseName:  fieldDetail["databaseName"].(string),
+			TableName:     fieldDetail["tableName"].(string),
+			NegotiationID: negotiationID,
 		}
 		providerList[fieldDetail["providerID"].(string)] = append(providerList[fieldDetail["providerID"].(string)], dBAndTable)
 		// 创建新的 Negotiation 实例
@@ -296,8 +298,9 @@ func (s *sNegotiation) SendNegotiationAgreeToRequestor(ctx context.Context, data
 
 func (s *sNegotiation) ListNegotiation(ctx context.Context, data g.Map) (negotiationDataList []model.NegotiationList, err error) {
 	g.Log().Info(ctx, "listData:", data)
+	userID := g.Cfg().MustGet(ctx, "userInfo.id").Int64()
 	if data["user_type"].(string) == "provider" {
-		providerData, _ := g.Model("negotiation_pro").Fields("status,service_id,service_name,provider_db,provider_table,negotiation_id").Where("provider_id = ? AND status = ?", int64(data["provider_id"].(float64)), "start").Order("update_time DESC").All()
+		providerData, _ := g.Model("negotiation_pro").Fields("status,service_id,service_name,provider_db,provider_table,negotiation_id").Where("provider_id = ? AND status = ?", userID, "start").Order("update_time DESC").All()
 		g.Log().Info(ctx, "providerData:", providerData)
 		for _, v := range providerData {
 			negotiationData := model.NegotiationList{
@@ -312,8 +315,8 @@ func (s *sNegotiation) ListNegotiation(ctx context.Context, data g.Map) (negotia
 		}
 	}
 	if data["user_type"].(string) == "owner" {
-		ownerData, _ := g.Model("negotiation").Fields("status,service_id,service_name,provider_db,provider_table").Where("service_owner_id = ?", int64(data["owner_id"].(float64))).Order("update_time DESC").All()
-		g.Log().Info(ctx, "ownerData:", ownerData)
+		//userID := service.Context().GetLoginUser(ctx).Id
+		ownerData, _ := g.Model("negotiation").Fields("status,service_id,service_name,provider_db,provider_table").Where("service_owner_id = ?", userID).Order("update_time DESC").All()
 		for _, v := range ownerData {
 			negotiationData := model.NegotiationList{
 				Status:      fmt.Sprintf("%v", v["status"]),

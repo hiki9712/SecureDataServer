@@ -57,6 +57,7 @@ func (s *sMiddleware) Auth(r *ghttp.Request) {
 	ctx := r.GetCtx()
 	//获取登陆用户id
 	adminId := service.Context().GetUserId(ctx)
+	g.Log().Info(ctx, "adminId:", adminId)
 	accessParams := r.Get("accessParams").Strings()
 	accessParamsStr := ""
 	if len(accessParams) > 0 && accessParams[0] != "undefined" {
