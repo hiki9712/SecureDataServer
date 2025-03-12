@@ -142,6 +142,7 @@ func (s *sSysExchange) SendToMasking(ctx context.Context, data g.Map) (err error
 		g.Log().Info(ctx, "table:", table)
 		reqData.TaskID = int64(table.(map[string]interface{})["task_id"].(float64))
 		reqData.HandleID = int64(table.(map[string]interface{})["handle_id"].(float64))
+		reqData.HandleName = table.(map[string]interface{})["handle_name"].(string)
 		var tableDetail model.TaskTableDetail
 		var result []map[string]interface{}
 		var resultList [][]map[string]interface{}

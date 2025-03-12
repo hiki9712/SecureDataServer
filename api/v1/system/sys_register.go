@@ -11,8 +11,6 @@ type RegisterReq struct {
 	ServiceID       int64                `json:"serviceID"`
 	HandleName      string               `json:"handleName"`
 	HandleType      string               `json:"handleType"`
-	ProviderID      int64                `json:"providerID"`
-	DatabaseName    string               `json:"databaseName"`
 	KeyValueCount   int                  `json:"keyValueCount"`
 	KeyValueContent []*model.HandleField `json:"keyValueContent"`
 }

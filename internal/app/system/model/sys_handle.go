@@ -22,6 +22,8 @@ type HandleField struct {
 	DesenFieldName    []string          `json:"desenFieldName"`
 	Format            string            `json:"format"`
 	Protocol          int               `json:"protocol"`
+	ProviderID        int64             `json:"providerID"`
+	DatabaseName      string            `json:"databaseName"`
 }
 
 type FieldContent struct {
